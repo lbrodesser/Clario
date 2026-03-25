@@ -4,8 +4,9 @@ import { BildQualitaetsPruefung } from './BildQualitaetsPruefung'
 import { ZahlEingabe } from './ZahlEingabe'
 import { TextEingabe } from './TextEingabe'
 import { AuswahlEingabe } from './AuswahlEingabe'
+import { BedingtesFrage } from './BedingtesFrage'
 import { useBildQualitaet, dateiZuBase64 } from '../hooks/useBildQualitaet'
-import { useUpload } from '../hooks/useUpload'
+import { useUpload, useWertSpeichern } from '../hooks/useUpload'
 import type { DokumentMitDateien, QualitaetsPruefung, MandantTyp } from '@/shared/types'
 import { WoFindeIchDas } from './WoFindeIchDas'
 
@@ -13,14 +14,16 @@ interface DokumentUploadBereichProps {
   dokument: DokumentMitDateien
   portalToken: string
   mandantTyp: MandantTyp
+  checklisteId: string
 }
 
-export function DokumentUploadBereich({ dokument, portalToken, mandantTyp }: DokumentUploadBereichProps) {
+export function DokumentUploadBereich({ dokument, portalToken, mandantTyp, checklisteId }: DokumentUploadBereichProps) {
   const [gewaehlteDatei, setGewaehlteDatei] = useState<File | null>(null)
   const [vorschauUrl, setVorschauUrl] = useState<string | null>(null)
   const [pruefung, setPruefung] = useState<QualitaetsPruefung | null>(null)
   const bildQualitaet = useBildQualitaet()
   const upload = useUpload()
+  const wertSpeichern = useWertSpeichern()
 
   const handleDateiGewaehlt = async (datei: File) => {
     setGewaehlteDatei(datei)
@@ -127,6 +130,17 @@ export function DokumentUploadBereich({ dokument, portalToken, mandantTyp }: Dok
           portalToken={portalToken}
           optionen={dokument.auswahl_optionen}
           aktuellerWert={dokument.eingabe_wert_text}
+        />
+      )}
+
+      {dokument.eingabe_typ === 'bedingtes_formular' && (
+        <BedingtesFrage
+          dokumentId={dokument.id}
+          checklisteId={checklisteId}
+          portalToken={portalToken}
+          onAbgeschlossen={() => {
+            wertSpeichern.mutate({ dokumentId: dokument.id, portalToken, text: 'Fragebogen abgeschlossen' })
+          }}
         />
       )}
 

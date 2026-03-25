@@ -63,6 +63,7 @@ export function ChecklisteAnsicht({ checkliste, portalToken, mandantTyp }: Check
                   dokument={dok}
                   portalToken={portalToken}
                   mandantTyp={mandantTyp}
+                  checklisteId={checkliste.id}
                 />
               )}
 
@@ -72,6 +73,7 @@ export function ChecklisteAnsicht({ checkliste, portalToken, mandantTyp }: Check
                   dokument={{ ...dok, status: 'ausstehend' }}
                   portalToken={portalToken}
                   mandantTyp={mandantTyp}
+                  checklisteId={checkliste.id}
                 />
               )}
             </CardContent>
