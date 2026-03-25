@@ -89,13 +89,25 @@ interface ChecklisteErstellen {
   vorlageId: string
   titel: string
   frist: string
+  checklisteTyp?: 'einmalig' | 'wiederkehrend' | 'anlassbezogen'
+  wiederholungIntervall?: 'monatlich' | 'quartalsweise' | 'jaehrlich'
 }
 
 export function useChecklisteErstellen() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ mandantId, vorlageId, titel, frist }: ChecklisteErstellen) => {
+    mutationFn: async ({ mandantId, vorlageId, titel, frist, checklisteTyp, wiederholungIntervall }: ChecklisteErstellen) => {
+      // Naechste Erstellung berechnen fuer wiederkehrende Checklisten
+      let naechsteErstellung: string | null = null
+      if (checklisteTyp === 'wiederkehrend' && wiederholungIntervall) {
+        const d = new Date(frist)
+        if (wiederholungIntervall === 'monatlich') d.setMonth(d.getMonth() + 1)
+        else if (wiederholungIntervall === 'quartalsweise') d.setMonth(d.getMonth() + 3)
+        else if (wiederholungIntervall === 'jaehrlich') d.setFullYear(d.getFullYear() + 1)
+        naechsteErstellung = d.toISOString().split('T')[0]
+      }
+
       // Checkliste erstellen
       const { data: checkliste, error: clError } = await supabase
         .from('checklisten')
@@ -103,6 +115,9 @@ export function useChecklisteErstellen() {
           mandant_id: mandantId,
           titel,
           frist,
+          typ: checklisteTyp ?? 'einmalig',
+          wiederholung_intervall: wiederholungIntervall ?? null,
+          naechste_erstellung: naechsteErstellung,
           erstellt_von_vorlage_id: vorlageId,
         })
         .select()

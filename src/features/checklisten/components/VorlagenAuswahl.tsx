@@ -7,6 +7,8 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 import { useVorlagen, useChecklisteErstellen } from '../hooks/useChecklisten'
 import type { MandantTyp } from '@/shared/types'
 
+type WiederholungIntervall = 'monatlich' | 'quartalsweise' | 'jaehrlich'
+
 interface VorlagenAuswahlProps {
   mandantId: string
   mandantTyp: MandantTyp
@@ -19,13 +21,23 @@ export function VorlagenAuswahl({ mandantId, mandantTyp, onErstellt }: VorlagenA
   const [ausgewaehlt, setAusgewaehlt] = useState<string | null>(null)
   const [frist, setFrist] = useState('')
   const [titel, setTitel] = useState('')
+  const [intervall, setIntervall] = useState<WiederholungIntervall>('monatlich')
 
   const ausgewaehlteVorlage = vorlagen?.find((v) => v.id === ausgewaehlt)
 
   const handleErstellen = () => {
-    if (!ausgewaehlt || !frist || !titel) return
+    if (!ausgewaehlt || !frist || !titel || !ausgewaehlteVorlage) return
     erstellen.mutate(
-      { mandantId, vorlageId: ausgewaehlt, titel, frist },
+      {
+        mandantId,
+        vorlageId: ausgewaehlt,
+        titel,
+        frist,
+        checklisteTyp: ausgewaehlteVorlage.checkliste_typ,
+        wiederholungIntervall: ausgewaehlteVorlage.checkliste_typ === 'wiederkehrend'
+          ? intervall
+          : undefined,
+      },
       { onSuccess: onErstellt }
     )
   }
@@ -81,6 +93,24 @@ export function VorlagenAuswahl({ mandantId, mandantTyp, onErstellt }: VorlagenA
               onChange={(e) => setFrist(e.target.value)}
             />
           </div>
+          {ausgewaehlteVorlage.checkliste_typ === 'wiederkehrend' && (
+            <div className="space-y-2">
+              <Label>Wiederholung</Label>
+              <div className="flex gap-2">
+                {(['monatlich', 'quartalsweise', 'jaehrlich'] as const).map((opt) => (
+                  <Button
+                    key={opt}
+                    type="button"
+                    variant={intervall === opt ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setIntervall(opt)}
+                  >
+                    {opt === 'monatlich' ? 'Monatlich' : opt === 'quartalsweise' ? 'Quartalsweise' : 'Jaehrlich'}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
           <Button
             onClick={handleErstellen}
             disabled={!frist || !titel || erstellen.isPending}
