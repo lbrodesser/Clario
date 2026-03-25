@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from '@/shared/components/ui/toaster'
 import { AppLayout } from '@/shared/components/layout/AppLayout'
 import { PortalLayout } from '@/shared/components/layout/PortalLayout'
 import { ProtectedRoute } from '@/shared/components/layout/ProtectedRoute'
@@ -54,6 +55,7 @@ function App() {
           <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </QueryClientProvider>
   )

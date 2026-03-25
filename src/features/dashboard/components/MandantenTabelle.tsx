@@ -5,6 +5,8 @@ import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { AmpelBadge } from './AmpelBadge'
 import { formatDatum, mandantTypLabel } from '@/shared/lib/utils'
+import { useErinnerungSenden } from '@/features/checklisten/hooks/useChecklisten'
+import { toast } from '@/shared/hooks/useToast'
 import type { MandantMitStatus } from '@/shared/types'
 
 interface MandantenTabelleProps {
@@ -15,6 +17,7 @@ type FilterTab = 'alle' | 'ausstehend' | 'ueberfaellig' | 'diese_woche'
 
 export function MandantenTabelle({ mandanten }: MandantenTabelleProps) {
   const [filter, setFilter] = useState<FilterTab>('alle')
+  const erinnerung = useErinnerungSenden()
 
   const gefiltert = mandanten
     .filter((m) => {
@@ -92,10 +95,34 @@ export function MandantenTabelle({ mandanten }: MandantenTabelleProps) {
                     {naechsteFrist ? formatDatum(naechsteFrist) : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="ghost" size="sm" className="gap-1">
-                      <Send className="h-3 w-3" />
-                      Erinnerung
-                    </Button>
+                    {(() => {
+                      const offeneCheckliste = m.checklisten.find(
+                        (c) => c.status !== 'vollstaendig'
+                      )
+                      if (!offeneCheckliste) return null
+                      return (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1"
+                          disabled={erinnerung.isPending}
+                          onClick={() => {
+                            erinnerung.mutate(
+                              { checklisteId: offeneCheckliste.id, typ: 'manuell' },
+                              {
+                                onSuccess: () =>
+                                  toast({ titel: 'Erinnerung gesendet', beschreibung: `E-Mail an ${m.name} versendet`, variante: 'success' }),
+                                onError: () =>
+                                  toast({ titel: 'Fehler', beschreibung: 'Erinnerung konnte nicht gesendet werden', variante: 'destructive' }),
+                              }
+                            )
+                          }}
+                        >
+                          <Send className="h-3 w-3" />
+                          Erinnerung
+                        </Button>
+                      )
+                    })()}
                   </td>
                 </tr>
               )
