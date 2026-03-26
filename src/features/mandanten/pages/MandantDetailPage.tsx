@@ -87,7 +87,7 @@ export function MandantDetailPage() {
         </TabsContent>
 
         <TabsContent value="checklisten">
-          <ChecklisteEditor mandantId={mandant.id} mandantTyp={mandant.typ} checklisten={checklisten ?? []} />
+          <ChecklisteEditor mandantId={mandant.id} mandantTyp={mandant.typ} mandantName={mandant.name} checklisten={checklisten ?? []} />
         </TabsContent>
 
         {zeigtMitarbeiter && (

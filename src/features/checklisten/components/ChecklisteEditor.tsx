@@ -8,16 +8,18 @@ import { VorlagenAuswahl } from './VorlagenAuswahl'
 import { DokumentZeile } from './DokumentZeile'
 import { MagicLinkPanel } from './MagicLinkPanel'
 import { ErinnerungSenden } from './ErinnerungSenden'
+import { KiErinnerungDialog } from './KiErinnerungDialog'
 import { formatDatum } from '@/shared/lib/utils'
 import type { ChecklisteMitDokumente, MandantTyp } from '@/shared/types'
 
 interface ChecklisteEditorProps {
   mandantId: string
   mandantTyp: MandantTyp
+  mandantName: string
   checklisten: ChecklisteMitDokumente[]
 }
 
-export function ChecklisteEditor({ mandantId, mandantTyp, checklisten }: ChecklisteEditorProps) {
+export function ChecklisteEditor({ mandantId, mandantTyp, mandantName, checklisten }: ChecklisteEditorProps) {
   const [zeigeVorlagen, setZeigeVorlagen] = useState(false)
   const [expandiert, setExpandiert] = useState<Set<string>>(new Set())
 
@@ -98,6 +100,13 @@ export function ChecklisteEditor({ mandantId, mandantTyp, checklisten }: Checkli
                   <DokumentZeile key={dok.id} dokument={dok} />
                 ))}
               </div>
+              {cl.status !== 'vollstaendig' && (
+                <KiErinnerungDialog
+                  checklisteId={cl.id}
+                  checklisteTitel={cl.titel}
+                  mandantName={mandantName}
+                />
+              )}
             </CardContent>
           )}
         </Card>
