@@ -28,20 +28,20 @@ export function VerifyEmailPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Mail className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle>E-Mail bestaetigen</CardTitle>
+          <CardTitle>E-Mail bestätigen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            Wir haben Ihnen einen Bestaetigungslink geschickt.
-            Bitte pruefen Sie Ihren Posteingang und klicken Sie auf den Link,
+            Wir haben Ihnen einen Bestätigungslink geschickt.
+            Bitte prüfen Sie Ihren Posteingang und klicken Sie auf den Link,
             um Ihr Konto zu aktivieren.
           </p>
           <p className="text-sm text-muted-foreground">
-            Pruefen Sie auch Ihren Spam-Ordner.
+            Prüfen Sie auch Ihren Spam-Ordner.
           </p>
 
           {gesendet ? (
-            <p className="text-sm text-ampel-gruen">Bestaetigungsmail erneut gesendet.</p>
+            <p className="text-sm text-ampel-gruen">Bestätigungsmail erneut gesendet.</p>
           ) : (
             <Button
               variant="outline"
@@ -49,12 +49,12 @@ export function VerifyEmailPage() {
               disabled={isLoading}
               className="w-full"
             >
-              {isLoading ? 'Wird gesendet...' : 'Bestaetigungsmail erneut senden'}
+              {isLoading ? 'Wird gesendet...' : 'Bestätigungsmail erneut senden'}
             </Button>
           )}
 
           <Button variant="link" asChild>
-            <a href="/login">Zurueck zur Anmeldung</a>
+            <a href="/login">Zurück zur Anmeldung</a>
           </Button>
         </CardContent>
       </Card>

@@ -55,10 +55,10 @@ export function EinstellungenPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Loeschen Sie alle Daten eines Mandanten unwiderruflich.
+            Löschen Sie alle Daten eines Mandanten unwiderruflich.
           </p>
           <Button variant="destructive">
-            Mandantendaten loeschen
+            Mandantendaten löschen
           </Button>
         </CardContent>
       </Card>

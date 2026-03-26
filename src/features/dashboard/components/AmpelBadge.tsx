@@ -14,7 +14,7 @@ export function AmpelBadge({ farbe }: AmpelBadgeProps) {
         farbe === 'gelb' && 'bg-ampel-gelb',
         farbe === 'rot' && 'bg-ampel-rot'
       )}
-      title={farbe === 'gruen' ? 'Alles eingereicht' : farbe === 'gelb' ? 'Ausstehend' : 'Kritisch / Ueberfaellig'}
+      title={farbe === 'gruen' ? 'Alles eingereicht' : farbe === 'gelb' ? 'Ausstehend' : 'Kritisch / Überfällig'}
     />
   )
 }

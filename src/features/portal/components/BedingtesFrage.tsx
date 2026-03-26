@@ -156,13 +156,13 @@ export function BedingtesFrage({ dokumentId, checklisteId, portalToken, onAbgesc
             className="gap-1 min-h-[48px]"
           >
             <ChevronLeft className="h-4 w-4" />
-            Zurueck
+            Zurück
           </Button>
         ) : (
           <div />
         )}
 
-        {/* Weiter/Abschliessen nur bei Nicht-Auswahl oder wenn Antwort vorhanden */}
+        {/* Weiter/Abschließen nur bei Nicht-Auswahl oder wenn Antwort vorhanden */}
         {(aktuelleFrage.eingabe_typ !== 'auswahl' || aktuelleAntwort) && (
           <Button
             size="sm"
@@ -170,7 +170,7 @@ export function BedingtesFrage({ dokumentId, checklisteId, portalToken, onAbgesc
             disabled={!aktuelleAntwort}
             className="gap-1 min-h-[48px]"
           >
-            {istLetzteFrage ? 'Abschliessen' : 'Weiter'}
+            {istLetzteFrage ? 'Abschließen' : 'Weiter'}
             {istLetzteFrage ? <Check className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
         )}

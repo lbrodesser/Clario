@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { useLogin } from '../hooks/useAuth'
 
 const loginSchema = z.object({
-  email: z.string().email('Bitte gueltige E-Mail-Adresse eingeben'),
+  email: z.string().email('Bitte gültige E-Mail-Adresse eingeben'),
   passwort: z.string().min(6, 'Mindestens 6 Zeichen'),
 })
 
@@ -59,7 +59,7 @@ export function LoginForm() {
           </div>
           {login.error && (
             <p className="text-sm text-destructive">
-              Anmeldung fehlgeschlagen. Bitte pruefen Sie Ihre Zugangsdaten.
+              Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Zugangsdaten.
             </p>
           )}
           <Button type="submit" className="w-full" disabled={login.isPending}>

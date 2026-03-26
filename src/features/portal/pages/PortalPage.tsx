@@ -28,9 +28,9 @@ export function PortalPage() {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-medium">Link ungueltig oder abgelaufen</p>
+          <p className="text-lg font-medium">Link ungültig oder abgelaufen</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Bitte wenden Sie sich an Ihre Steuerkanzlei fuer einen neuen Link.
+            Bitte wenden Sie sich an Ihre Steuerkanzlei für einen neuen Link.
           </p>
         </div>
       </div>

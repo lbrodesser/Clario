@@ -149,7 +149,7 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
       />
 
       <p className="text-xs text-muted-foreground">
-        Mit Ihrer Unterschrift bestaetigen Sie, dass Sie das Dokument gelesen und akzeptiert haben.
+        Mit Ihrer Unterschrift bestätigen Sie, dass Sie das Dokument gelesen und akzeptiert haben.
       </p>
 
       <div className="flex items-center justify-between gap-2">
@@ -160,7 +160,7 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
           disabled={!hasDrawn || isLoading}
           className="min-h-[48px]"
         >
-          Unterschrift loeschen
+          Unterschrift löschen
         </Button>
         <Button
           onClick={handleSignieren}

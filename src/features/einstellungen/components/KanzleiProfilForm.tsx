@@ -76,7 +76,7 @@ export function KanzleiProfilForm({ kanzlei }: KanzleiProfilFormProps) {
         <VorlageUpload
           kanzleiId={kanzlei.id}
           typ="datenschutz"
-          label="Datenschutzerklaerung-Vorlage"
+          label="Datenschutzerklärung-Vorlage"
           aktuelleUrl={kanzlei.datenschutz_vorlage_url ?? null}
         />
       </div>
@@ -109,7 +109,7 @@ function VorlageUpload({ kanzleiId, typ, label, aktuelleUrl }: VorlageUploadProp
     }
 
     if (datei.size > 5 * 1024 * 1024) {
-      toast({ titel: 'Datei zu gross (max. 5 MB)', variante: 'destructive' })
+      toast({ titel: 'Datei zu groß (max. 5 MB)', variante: 'destructive' })
       return
     }
 

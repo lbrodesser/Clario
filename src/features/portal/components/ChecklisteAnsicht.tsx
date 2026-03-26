@@ -76,11 +76,11 @@ export function ChecklisteAnsicht({ checkliste, portalToken, mandantTyp, mandant
                 />
               )}
 
-              {/* Personalausweis: Vorder- und Rueckseite */}
+              {/* Personalausweis: Vorder- und Rückseite */}
               {!istUnterschriftDok && istPersonalausweis && (dok.status === 'ausstehend' || dok.status === 'abgelehnt' || dok.status === 'hochgeladen') && (
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Bitte fotografieren Sie Vorder- und Rueckseite Ihres Personalausweises separat.
+                    Bitte fotografieren Sie Vorder- und Rückseite Ihres Personalausweises separat.
                   </p>
 
                   {/* Bereits hochgeladene Dateien */}
@@ -89,7 +89,7 @@ export function ChecklisteAnsicht({ checkliste, portalToken, mandantTyp, mandant
                       {dok.dateien.map((datei, idx) => (
                         <div key={datei.id} className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Check className="h-3 w-3 text-ampel-gruen" />
-                          <span>{idx === 0 ? 'Vorderseite' : 'Rueckseite'}: {datei.dateiname}</span>
+                          <span>{idx === 0 ? 'Vorderseite' : 'Rückseite'}: {datei.dateiname}</span>
                           {datei.dateigroesse_kb && (
                             <span>({formatDateigroesse(datei.dateigroesse_kb)})</span>
                           )}
@@ -114,7 +114,7 @@ export function ChecklisteAnsicht({ checkliste, portalToken, mandantTyp, mandant
                       )}
                       {dok.dateien.length === 1 && (
                         <div>
-                          <p className="text-sm font-medium mb-2">Rueckseite</p>
+                          <p className="text-sm font-medium mb-2">Rückseite</p>
                           <DokumentUploadBereich
                             dokument={{ ...dok, status: 'ausstehend' }}
                             portalToken={portalToken}

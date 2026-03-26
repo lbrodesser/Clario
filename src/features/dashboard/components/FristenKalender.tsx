@@ -60,7 +60,7 @@ function monatsTage(jahr: number, monat: number): Date[][] {
 }
 
 const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
-const MONATE = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 
 export function FristenKalender({ checklisten, mandantNamen }: FristenKalenderProps) {
   const [ansicht, setAnsicht] = useState<Ansicht>('woche')

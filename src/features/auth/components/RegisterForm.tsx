@@ -9,13 +9,13 @@ import { useRegister } from '../hooks/useAuth'
 
 const registerSchema = z.object({
   kanzleiName: z.string().min(2, 'Bitte Kanzleiname eingeben'),
-  email: z.string().email('Bitte gueltige E-Mail-Adresse eingeben'),
+  email: z.string().email('Bitte gültige E-Mail-Adresse eingeben'),
   passwort: z.string()
     .min(10, 'Mindestens 10 Zeichen')
     .regex(/\d/, 'Mindestens eine Zahl erforderlich'),
   passwortBestaetigung: z.string(),
 }).refine((data) => data.passwort === data.passwortBestaetigung, {
-  message: 'Passwoerter stimmen nicht ueberein',
+  message: 'Passwörter stimmen nicht überein',
   path: ['passwortBestaetigung'],
 })
 
@@ -76,7 +76,7 @@ export function RegisterForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="passwortBestaetigung">Passwort bestaetigen</Label>
+            <Label htmlFor="passwortBestaetigung">Passwort bestätigen</Label>
             <Input
               id="passwortBestaetigung"
               type="password"

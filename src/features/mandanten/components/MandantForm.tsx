@@ -11,7 +11,7 @@ import type { MandantTyp } from '@/shared/types'
 
 const mandantSchema = z.object({
   name: z.string().min(2, 'Name erforderlich'),
-  email: z.string().email('Gueltige E-Mail erforderlich'),
+  email: z.string().email('Gültige E-Mail erforderlich'),
   typ: z.enum(['privatperson', 'freiberufler', 'kleingewerbe', 'gmbh_ug', 'personengesellschaft', 'verein', 'pv_betreiber'] as const),
   steuer_id: z.string().optional(),
   notizen: z.string().optional(),
@@ -92,7 +92,7 @@ export function MandantForm({ initialDaten, onSubmit, isLoading }: MandantFormPr
       {/* Validierungsfehler anzeigen */}
       {Object.keys(errors).length > 0 && (
         <div className="rounded-lg border border-destructive p-3">
-          <p className="text-sm font-medium text-destructive">Bitte pruefen Sie folgende Felder:</p>
+          <p className="text-sm font-medium text-destructive">Bitte prüfen Sie folgende Felder:</p>
           <ul className="mt-1 list-disc pl-4 text-sm text-destructive">
             {Object.entries(errors).map(([feld, fehler]) => (
               <li key={feld}>{feld}: {fehler?.message ?? 'Ungueltig'}</li>

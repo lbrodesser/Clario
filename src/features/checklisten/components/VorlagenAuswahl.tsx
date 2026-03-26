@@ -68,7 +68,7 @@ export function VorlagenAuswahl({ mandantId, mandantTyp, onErstellt }: VorlagenA
         ))}
         {(!vorlagen || vorlagen.length === 0) && (
           <p className="col-span-full text-sm text-muted-foreground">
-            Keine Vorlagen fuer diesen Mandantentyp verfuegbar.
+            Keine Vorlagen für diesen Mandantentyp verfügbar.
           </p>
         )}
       </div>
@@ -105,7 +105,7 @@ export function VorlagenAuswahl({ mandantId, mandantTyp, onErstellt }: VorlagenA
                     size="sm"
                     onClick={() => setIntervall(opt)}
                   >
-                    {opt === 'monatlich' ? 'Monatlich' : opt === 'quartalsweise' ? 'Quartalsweise' : 'Jaehrlich'}
+                    {opt === 'monatlich' ? 'Monatlich' : opt === 'quartalsweise' ? 'Quartalsweise' : 'Jährlich'}
                   </Button>
                 ))}
               </div>

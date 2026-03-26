@@ -20,7 +20,7 @@ export function MandantKarte({ mandant }: MandantKarteProps) {
         <CardContent>
           <p className="text-sm text-muted-foreground">{mandant.email}</p>
           {!mandant.gwg_identifiziert && (
-            <p className="mt-2 text-xs text-ampel-rot font-medium">GwG nicht erfuellt</p>
+            <p className="mt-2 text-xs text-ampel-rot font-medium">GwG nicht erfüllt</p>
           )}
         </CardContent>
       </Card>

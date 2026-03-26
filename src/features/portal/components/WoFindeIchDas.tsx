@@ -7,27 +7,27 @@ import type { DokumentAnleitung, MandantTyp } from '@/shared/types'
 // Fallback-Texte wenn Claude API nicht erreichbar
 const FALLBACK_ANLEITUNGEN: Record<string, DokumentAnleitung> = {
   personalausweis: {
-    anleitung: 'Halten Sie Ihren gueltigen Personalausweis bereit.',
+    anleitung: 'Halten Sie Ihren gültigen Personalausweis bereit.',
     schritte: [
       'Fotografieren Sie die Vorderseite bei guter Beleuchtung.',
-      'Fotografieren Sie die Rueckseite separat.',
+      'Fotografieren Sie die Rückseite separat.',
       'Achten Sie darauf, dass alle Ecken sichtbar sind.',
     ],
-    alternativ: 'Alternativ koennen Sie auch Ihren Reisepass verwenden.',
+    alternativ: 'Alternativ können Sie auch Ihren Reisepass verwenden.',
   },
   vollmacht: {
     anleitung: 'Das Vollmacht-Formular wird Ihnen von Ihrer Steuerkanzlei bereitgestellt.',
     schritte: [
-      'Lesen Sie das Dokument sorgfaeltig durch.',
+      'Lesen Sie das Dokument sorgfältig durch.',
       'Unterschreiben Sie digital im Unterschriftsfeld.',
       'Klicken Sie auf "Unterschreiben und absenden".',
     ],
     alternativ: null,
   },
   datenschutz: {
-    anleitung: 'Die Datenschutzerklaerung wird von Ihrer Steuerkanzlei bereitgestellt.',
+    anleitung: 'Die Datenschutzerklärung wird von Ihrer Steuerkanzlei bereitgestellt.',
     schritte: [
-      'Lesen Sie die Datenschutzerklaerung durch.',
+      'Lesen Sie die Datenschutzerklärung durch.',
       'Unterschreiben Sie digital im Unterschriftsfeld.',
       'Klicken Sie auf "Unterschreiben und absenden".',
     ],
@@ -36,7 +36,7 @@ const FALLBACK_ANLEITUNGEN: Record<string, DokumentAnleitung> = {
   steuerbescheid: {
     anleitung: 'Ihren letzten Steuerbescheid finden Sie in Ihren Unterlagen vom Finanzamt.',
     schritte: [
-      'Pruefen Sie Ihren Briefkasten oder Ihre Ablage nach Post vom Finanzamt.',
+      'Prüfen Sie Ihren Briefkasten oder Ihre Ablage nach Post vom Finanzamt.',
       'Alternativ: Loggen Sie sich in Ihr ELSTER-Konto ein unter "Bescheide".',
       'Fotografieren oder scannen Sie das Dokument.',
     ],
@@ -45,8 +45,8 @@ const FALLBACK_ANLEITUNGEN: Record<string, DokumentAnleitung> = {
   lohnsteuerbescheinigung: {
     anleitung: 'Ihre Lohnsteuerbescheinigung erhalten Sie von Ihrem Arbeitgeber.',
     schritte: [
-      'Die Bescheinigung wird meist im Februar/Maerz fuer das Vorjahr ausgestellt.',
-      'Pruefen Sie Ihre Gehaltsunterlagen oder fragen Sie Ihre Personalabteilung.',
+      'Die Bescheinigung wird meist im Februar/März für das Vorjahr ausgestellt.',
+      'Prüfen Sie Ihre Gehaltsunterlagen oder fragen Sie Ihre Personalabteilung.',
       'Oft finden Sie sie auch in Ihrem Online-Gehaltsportal.',
     ],
     alternativ: null,

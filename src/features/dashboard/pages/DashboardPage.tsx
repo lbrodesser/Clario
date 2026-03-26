@@ -46,13 +46,13 @@ export function DashboardPage() {
       ) : stats && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatKarte
-            label="Ueberfaellig"
+            label="Überfällig"
             wert={stats.ueberfaellig}
             icon={<AlertTriangle className="h-5 w-5" />}
             farbe={stats.ueberfaellig > 0 ? 'rot' : 'neutral'}
           />
           <StatKarte
-            label="Diese Woche faellig"
+            label="Diese Woche fällig"
             wert={stats.dieseWoche}
             icon={<Clock className="h-5 w-5" />}
             farbe={stats.dieseWoche > 0 ? 'gelb' : 'neutral'}

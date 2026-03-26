@@ -73,7 +73,7 @@ export function VorlageMitUnterschrift({
       // URL-Validierung: nur eigene Supabase-Instanz erlauben
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
       if (supabaseUrl && !dokument.vorlage_pdf_url.startsWith(supabaseUrl)) {
-        throw new Error('Ungueltige Vorlagen-URL')
+        throw new Error('Ungültige Vorlagen-URL')
       }
 
       // Original-PDF laden
@@ -85,13 +85,13 @@ export function VorlageMitUnterschrift({
 
       // Groessencheck: max 10MB fuer Browser-Verarbeitung
       if (pdfBytes.byteLength > 10 * 1024 * 1024) {
-        throw new Error('PDF ist zu gross fuer die Verarbeitung (max. 10 MB)')
+        throw new Error('PDF ist zu groß für die Verarbeitung (max. 10 MB)')
       }
 
       // Magic Bytes pruefen: %PDF
       const headerBytes = new Uint8Array(pdfBytes.slice(0, 4))
       if (headerBytes[0] !== 0x25 || headerBytes[1] !== 0x50 || headerBytes[2] !== 0x44 || headerBytes[3] !== 0x46) {
-        throw new Error('Ungueltige PDF-Datei')
+        throw new Error('Ungültige PDF-Datei')
       }
 
       const pdfDoc = await PDFDocument.load(pdfBytes)

@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clario — Das Mandantenportal fuer Ihre Kanzlei</title>
+    <meta name="description" content="Clario ist das schlanke Mandantenportal fuer deutsche Steuerkanzleien. Belege einsammeln, Fristen im Blick, Mandanten entlasten — ohne Schulung, ohne Accounts.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --color-bg: #f7f6f3;
+            --color-dark: #111827;
+            --color-accent: #1e40af;
+            --color-accent-light: #3b82f6;
+            --color-cream: #ffffff;
+            --color-muted: #6b7280;
+            --color-success: #059669;
+            --color-warning: #d97706;
+            --color-danger: #dc2626;
+            --font-serif: 'DM Serif Display', Georgia, serif;
+            --font-sans: 'Inter', -apple-system, sans-serif;
+        }
+
+        html { font-size: 16px; scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg);
+            color: var(--color-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================
+           LOADER
+           ============================================ */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--color-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-text {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            color: #ffffff;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.3s;
+        }
+        .loader-line {
+            width: 0;
+            height: 2px;
+            background: var(--color-accent-light);
+            margin-top: 1.5rem;
+            animation: expandLine 0.5s ease forwards 0.8s;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes expandLine {
+            from { width: 0; }
+            to { width: 120px; }
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            mix-blend-mode: difference;
+        }
+        .nav-logo {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: opacity 0.3s;
+        }
+        .nav-links a:hover { opacity: 0.6; }
+        .nav-cta {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.6rem 1.8rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 100px;
+            transition: all 0.3s;
+        }
+        .nav-cta:hover { background: rgba(255,255,255,0.1); }
+
+        /* ============================================
+           STICKY CTA
+           ============================================ */
+        .sticky-cta {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 90;
+            background: var(--color-accent);
+            color: #ffffff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(30, 64, 175, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+        .sticky-cta.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        .sticky-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(30, 64, 175, 0.4);
+        }
+
+        /* ============================================
+           HERO — SPLIT LAYOUT
+           ============================================ */
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            position: relative;
+        }
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 5rem 8rem 5rem;
+        }
+        .hero-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 2.3s;
+        }
+        .hero-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2.8rem, 4.5vw, 4.5rem);
+            line-height: 1.1;
+            color: var(--color-dark);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 2.5s;
+        }
+        .hero-headline em {
+            font-style: italic;
+            color: var(--color-accent);
+        }
+        .hero-sub {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--color-muted);
+            max-width: 480px;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 2.7s;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 2.9s;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-accent);
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 1rem 2.2rem;
+            border-radius: 100px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30,64,175,0.25); }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            color: var(--color-dark);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 1rem 2.2rem;
+            border-radius: 100px;
+            border: 1.5px solid var(--color-dark);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: var(--color-dark); color: #fff; }
+
+        .hero-visual {
+            position: relative;
+            overflow: hidden;
+            background: var(--color-dark);
+        }
+        .hero-mockup {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+        }
+        .mockup-phone {
+            width: 320px;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+            transform: rotate(-3deg);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 2.6s;
+        }
+        .mockup-screen {
+            background: #f8fafc;
+            border-radius: 22px;
+            overflow: hidden;
+        }
+        .mockup-header {
+            background: var(--color-dark);
+            padding: 1.2rem 1.2rem 0.8rem;
+            color: #ffffff;
+        }
+        .mockup-header-logo {
+            font-family: var(--font-serif);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .mockup-header-sub {
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .mockup-body { padding: 1rem 1.2rem; }
+        .mockup-progress {
+            margin-bottom: 1rem;
+        }
+        .mockup-progress-label {
+            font-size: 0.6rem;
+            color: var(--color-muted);
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .mockup-progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .mockup-progress-fill {
+            height: 100%;
+            width: 60%;
+            background: var(--color-success);
+            border-radius: 3px;
+        }
+        .mockup-item {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.7rem;
+        }
+        .mockup-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            flex-shrink: 0;
+        }
+        .mockup-check.done { background: #d1fae5; color: var(--color-success); }
+        .mockup-check.pending { background: #fef3c7; color: var(--color-warning); }
+        .mockup-check.open { background: #f1f5f9; color: #94a3b8; }
+        .mockup-item-text { color: var(--color-dark); }
+        .mockup-item-text.done-text { color: var(--color-muted); text-decoration: line-through; }
+        .mockup-btn {
+            display: block;
+            text-align: center;
+            background: var(--color-accent);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.7rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 3.2s;
+        }
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: var(--color-muted);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .scroll-text {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+        }
+
+        /* ============================================
+           PHILOSOPHY
+           ============================================ */
+        .philosophy {
+            padding: 10rem 3rem;
+            text-align: center;
+            background: var(--color-cream);
+        }
+        .philosophy-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1.6rem, 3vw, 2.6rem);
+            line-height: 1.5;
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--color-dark);
+        }
+        .philosophy-text em {
+            font-style: italic;
+            color: var(--color-accent);
+        }
+
+        /* ============================================
+           PROBLEM
+           ============================================ */
+        .problem {
+            padding: 8rem 3rem;
+            background: var(--color-dark);
+            color: #ffffff;
+        }
+        .problem-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .problem-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent-light);
+            margin-bottom: 2rem;
+        }
+        .problem-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            line-height: 1.15;
+            margin-bottom: 4rem;
+        }
+        .problem-headline em { font-style: italic; color: var(--color-accent-light); }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+        .problem-card {
+            padding: 2.5rem 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .problem-number {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            color: var(--color-accent-light);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        .problem-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-weight: 400;
+        }
+        .problem-card p {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* ============================================
+           SOLUTION — AMPEL DEMO
+           ============================================ */
+        .solution {
+            padding: 8rem 3rem;
+            background: var(--color-bg);
+        }
+        .solution-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        .solution-content {}
+        .solution-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+        }
+        .solution-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+        .solution-headline em { font-style: italic; color: var(--color-accent); }
+        .solution-text {
+            font-size: 0.92rem;
+            line-height: 1.8;
+            color: var(--color-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .ampel-demo {
+            background: var(--color-cream);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+        }
+        .ampel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .ampel-title {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+        }
+        .ampel-filter {
+            font-size: 0.65rem;
+            color: var(--color-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .ampel-row {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid #f8fafc;
+            gap: 1rem;
+        }
+        .ampel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .ampel-dot.green { background: var(--color-success); }
+        .ampel-dot.yellow { background: var(--color-warning); }
+        .ampel-dot.red { background: var(--color-danger); }
+        .ampel-name {
+            font-size: 0.82rem;
+            font-weight: 500;
+            flex: 1;
+        }
+        .ampel-status {
+            font-size: 0.68rem;
+            color: var(--color-muted);
+        }
+        .ampel-progress-mini {
+            width: 60px;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .ampel-progress-mini-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+        .ampel-progress-mini-fill.full { width: 100%; background: var(--color-success); }
+        .ampel-progress-mini-fill.partial { width: 60%; background: var(--color-warning); }
+        .ampel-progress-mini-fill.low { width: 20%; background: var(--color-danger); }
+
+        /* ============================================
+           FEATURES — VERTICAL LIST
+           ============================================ */
+        .features {
+            padding: 8rem 3rem;
+            background: var(--color-dark);
+            color: #ffffff;
+        }
+        .features-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .features-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent-light);
+            margin-bottom: 2rem;
+        }
+        .features-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            line-height: 1.15;
+            margin-bottom: 4rem;
+        }
+        .features-headline em { font-style: italic; color: var(--color-accent-light); }
+
+        .feature-row {
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            transition: background 0.3s;
+            gap: 2rem;
+        }
+        .feature-row:hover { background: rgba(255,255,255,0.02); }
+        .feature-number {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            color: var(--color-accent-light);
+            opacity: 0.25;
+            min-width: 60px;
+        }
+        .feature-title {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            flex: 1;
+            transition: color 0.3s;
+        }
+        .feature-row:hover .feature-title { color: var(--color-accent-light); }
+        .feature-desc {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.5);
+            max-width: 380px;
+        }
+        .feature-arrow {
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s;
+            color: var(--color-accent-light);
+        }
+        .feature-row:hover .feature-arrow { opacity: 1; transform: translateX(0); }
+
+        /* ============================================
+           PORTAL SHOWCASE
+           ============================================ */
+        .showcase {
+            padding: 8rem 3rem;
+            background: var(--color-cream);
+        }
+        .showcase-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        .showcase-inner.reversed { direction: rtl; }
+        .showcase-inner.reversed > * { direction: ltr; }
+        .showcase-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+        }
+        .showcase-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(1.8rem, 3vw, 2.8rem);
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+        .showcase-headline em { font-style: italic; color: var(--color-accent); }
+        .showcase-text {
+            font-size: 0.92rem;
+            line-height: 1.8;
+            color: var(--color-muted);
+            margin-bottom: 2rem;
+        }
+        .showcase-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .showcase-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            font-size: 0.88rem;
+            color: var(--color-dark);
+        }
+        .showcase-list .check-icon {
+            color: var(--color-success);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 0.1rem;
+        }
+
+        .showcase-visual {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+        }
+        .portal-mockup-header {
+            background: var(--color-dark);
+            border-radius: 12px 12px 0 0;
+            padding: 1.2rem 1.5rem;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .portal-mockup-logo { font-family: var(--font-serif); font-size: 0.95rem; }
+        .portal-mockup-badge {
+            font-size: 0.55rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 100px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .portal-mockup-body {
+            background: #ffffff;
+            border-radius: 0 0 12px 12px;
+            padding: 1.5rem;
+        }
+        .portal-mockup-title {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .portal-mockup-frist {
+            font-size: 0.68rem;
+            color: var(--color-muted);
+            margin-bottom: 1rem;
+        }
+        .portal-mockup-progress { margin-bottom: 1.2rem; }
+        .portal-mockup-progress-text {
+            font-size: 0.65rem;
+            color: var(--color-muted);
+            margin-bottom: 0.3rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .portal-mockup-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+        }
+        .portal-mockup-bar-fill {
+            height: 100%;
+            width: 40%;
+            background: var(--color-accent);
+            border-radius: 3px;
+        }
+        .portal-doc {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .portal-doc-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        .portal-doc-icon.uploaded { background: #d1fae5; color: var(--color-success); }
+        .portal-doc-icon.pending { background: #fef3c7; color: var(--color-warning); }
+        .portal-doc-icon.signature { background: #dbeafe; color: var(--color-accent); }
+        .portal-doc-text { font-size: 0.75rem; flex: 1; }
+        .portal-doc-status { font-size: 0.6rem; color: var(--color-muted); }
+        .portal-doc-link {
+            font-size: 0.6rem;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+        .portal-sign-area {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .portal-sign-label {
+            font-size: 0.65rem;
+            color: var(--color-muted);
+            margin-bottom: 0.5rem;
+        }
+        .portal-sign-canvas {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Brush Script MT', cursive;
+            font-size: 1.2rem;
+            color: var(--color-dark);
+            opacity: 0.7;
+        }
+        .portal-sign-btn {
+            display: inline-block;
+            margin-top: 0.6rem;
+            background: var(--color-accent);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ============================================
+           STATS
+           ============================================ */
+        .stats {
+            padding: 6rem 3rem;
+            background: var(--color-bg);
+        }
+        .stats-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-family: var(--font-serif);
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            color: var(--color-accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+        }
+
+        /* ============================================
+           TESTIMONIAL
+           ============================================ */
+        .testimonial {
+            padding: 10rem 3rem;
+            text-align: center;
+            background: var(--color-cream);
+        }
+        .testimonial-quote {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+            line-height: 1.6;
+            max-width: 750px;
+            margin: 0 auto 2rem;
+            color: var(--color-dark);
+        }
+        .testimonial-author {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+        .testimonial-role {
+            font-size: 0.72rem;
+            color: var(--color-muted);
+            margin-top: 0.3rem;
+        }
+
+        /* ============================================
+           PRICING
+           ============================================ */
+        .pricing {
+            padding: 8rem 3rem;
+            background: var(--color-bg);
+        }
+        .pricing-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .pricing-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+        }
+        .pricing-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            margin-bottom: 1rem;
+        }
+        .pricing-headline em { font-style: italic; color: var(--color-accent); }
+        .pricing-sub {
+            font-size: 0.92rem;
+            color: var(--color-muted);
+            margin-bottom: 4rem;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            text-align: left;
+        }
+        .pricing-card {
+            background: var(--color-cream);
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .pricing-card:hover { transform: translateY(-4px); }
+        .pricing-card.featured {
+            background: var(--color-dark);
+            color: #ffffff;
+        }
+        .pricing-card.featured .pricing-card-price { color: var(--color-accent-light); }
+        .pricing-card.featured .pricing-card-feature { color: rgba(255,255,255,0.7); }
+        .pricing-card.featured .pricing-card-btn {
+            background: var(--color-accent-light);
+            color: var(--color-dark);
+        }
+        .pricing-popular {
+            position: absolute;
+            top: -10px;
+            right: 2rem;
+            background: var(--color-accent-light);
+            color: var(--color-dark);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+        }
+        .pricing-card-name {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: var(--color-muted);
+        }
+        .pricing-card.featured .pricing-card-name { color: rgba(255,255,255,0.5); }
+        .pricing-card-price {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            color: var(--color-dark);
+            margin-bottom: 0.3rem;
+        }
+        .pricing-card-price span {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+        .pricing-card-desc {
+            font-size: 0.78rem;
+            color: var(--color-muted);
+            margin-bottom: 2rem;
+        }
+        .pricing-card.featured .pricing-card-desc { color: rgba(255,255,255,0.5); }
+        .pricing-card-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            margin-bottom: 2rem;
+        }
+        .pricing-card-feature {
+            font-size: 0.82rem;
+            color: var(--color-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .pricing-card-feature .check-icon { color: var(--color-success); font-weight: 700; }
+        .pricing-card.featured .pricing-card-feature .check-icon { color: #6ee7b7; }
+        .pricing-card-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 0.9rem;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: var(--color-dark);
+            color: #fff;
+        }
+        .pricing-card-btn:hover { transform: translateY(-2px); }
+        .pricing-note {
+            font-size: 0.78rem;
+            color: var(--color-muted);
+            margin-top: 2rem;
+        }
+
+        /* ============================================
+           CTA / CONTACT
+           ============================================ */
+        .cta {
+            padding: 8rem 3rem;
+            background: var(--color-dark);
+            color: #ffffff;
+            text-align: center;
+        }
+        .cta-headline {
+            font-family: var(--font-serif);
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+        .cta-headline em { font-style: italic; color: var(--color-accent-light); }
+        .cta-text {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 550px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cta-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--color-accent-light);
+            color: var(--color-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 1.1rem 2.5rem;
+            border-radius: 100px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .cta-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59,130,246,0.3); }
+        .cta-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            padding: 1.1rem 2.5rem;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            border-radius: 100px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .cta-btn-secondary:hover { background: rgba(255,255,255,0.05); }
+        .cta-contact {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+        .cta-contact-item {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.5);
+        }
+        .cta-contact-item a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            padding: 2rem 3rem;
+            background: var(--color-dark);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-copy {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.4);
+        }
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .footer-links a {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+        /* ============================================
+           SCROLL REVEAL
+           ============================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .nav { padding: 1.2rem 1.5rem; }
+            .hero { grid-template-columns: 1fr; min-height: auto; }
+            .hero-content { padding: 8rem 2rem 3rem; }
+            .hero-visual { min-height: 60vh; }
+            .hero-mockup { padding: 2rem; }
+            .mockup-phone { width: 260px; transform: rotate(0deg); }
+            .scroll-indicator { display: none; }
+            .problem-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .solution-inner { grid-template-columns: 1fr; gap: 3rem; }
+            .showcase-inner { grid-template-columns: 1fr; gap: 3rem; }
+            .showcase-inner.reversed { direction: ltr; }
+            .stats-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+            .feature-desc { display: none; }
+            .feature-arrow { display: none; }
+            .cta-contact { flex-direction: column; gap: 1rem; align-items: center; }
+            .footer { flex-direction: column; gap: 1rem; text-align: center; }
+            .philosophy { padding: 6rem 2rem; }
+            .problem, .features, .showcase, .solution, .pricing, .cta { padding: 5rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER -->
+    <div class="loader" id="loader">
+        <div class="loader-text">Clario</div>
+        <div class="loader-line"></div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+        <a href="#" class="nav-logo">Clario</a>
+        <ul class="nav-links">
+            <li><a href="#problem">Problem</a></li>
+            <li><a href="#loesung">Loesung</a></li>
+            <li><a href="#funktionen">Funktionen</a></li>
+            <li><a href="#preise">Preise</a></li>
+        </ul>
+        <a href="mailto:l.brodesser@gmx.de?subject=Clario Demo anfragen" class="nav-cta">Demo buchen</a>
+    </nav>
+
+    <!-- STICKY CTA -->
+    <a href="mailto:l.brodesser@gmx.de?subject=Clario Demo anfragen" class="sticky-cta" id="stickyCta">Demo buchen</a>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="hero-tag">Mandantenportal fuer Steuerkanzleien</div>
+            <h1 class="hero-headline">Belege einsammeln,<br><em>ohne nachzufassen.</em></h1>
+            <p class="hero-sub">Clario ist das Portal, mit dem Ihre Mandanten selbstaendig Unterlagen einreichen — ohne Account, ohne Anruf bei Ihnen, ohne E-Mail-Pingpong.</p>
+            <div class="hero-buttons">
+                <a href="mailto:l.brodesser@gmx.de?subject=Clario Demo anfragen" class="btn-primary">Kostenlose Demo &rarr;</a>
+                <a href="#loesung" class="btn-secondary">So funktioniert es</a>
+            </div>
+            <div class="scroll-indicator">
+                <div class="scroll-line"></div>
+                <span class="scroll-text">Scrollen</span>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-mockup">
+                <div class="mockup-phone">
+                    <div class="mockup-screen">
+                        <div class="mockup-header">
+                            <div class="mockup-header-logo">Kanzlei Mueller</div>
+                            <div class="mockup-header-sub">Einkommensteuer 2025</div>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="mockup-progress">
+                                <div class="mockup-progress-label">
+                                    <span>Fortschritt</span>
+                                    <span>3 von 5</span>
+                                </div>
+                                <div class="mockup-progress-bar">
+                                    <div class="mockup-progress-fill"></div>
+                                </div>
+                            </div>
+                            <div class="mockup-item">
+                                <div class="mockup-check done">&#10003;</div>
+                                <span class="mockup-item-text done-text">Lohnsteuerbescheinigung</span>
+                            </div>
+                            <div class="mockup-item">
+                                <div class="mockup-check done">&#10003;</div>
+                                <span class="mockup-item-text done-text">Krankenversicherung</span>
+                            </div>
+                            <div class="mockup-item">
+                                <div class="mockup-check done">&#10003;</div>
+                                <span class="mockup-item-text done-text">Steuer-ID</span>
+                            </div>
+                            <div class="mockup-item">
+                                <div class="mockup-check pending">!</div>
+                                <span class="mockup-item-text">Riester-Bescheinigung</span>
+                            </div>
+                            <div class="mockup-item">
+                                <div class="mockup-check open">&bull;</div>
+                                <span class="mockup-item-text">Spendenbescheinigungen</span>
+                            </div>
+                            <div class="mockup-btn">Jetzt hochladen</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="philosophy">
+        <p class="philosophy-text reveal">
+            Ihre Mandanten wissen immer, was sie noch schulden.<br>
+            Ohne Anruf bei Ihnen. Ohne E-Mail von Ihnen. <em>Automatisch.</em>
+        </p>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="problem" id="problem">
+        <div class="problem-inner">
+            <div class="problem-tag reveal">Das Problem</div>
+            <h2 class="problem-headline reveal">Jeden Morgen dasselbe:<br><em>Erinnern, nachfassen, warten.</em></h2>
+            <div class="problem-grid">
+                <div class="problem-card reveal reveal-delay-1">
+                    <div class="problem-number">01</div>
+                    <h3>1-3 Stunden pro Tag</h3>
+                    <p>Qualifizierte Fachkraefte verbringen ihre Zeit damit, Mandanten an fehlende Belege zu erinnern — bei 35-55 Euro Stundensatz.</p>
+                </div>
+                <div class="problem-card reveal reveal-delay-2">
+                    <div class="problem-number">02</div>
+                    <h3>&bdquo;Wo finde ich meinen Riester-Bescheid?&ldquo;</h3>
+                    <p>Mandanten rufen an, weil sie nicht wissen, welche Unterlagen fehlen oder wo sie diese finden. Jeder Anruf kostet Sie 10 Minuten.</p>
+                </div>
+                <div class="problem-card reveal reveal-delay-3">
+                    <div class="problem-number">03</div>
+                    <h3>Kein Ueberblick</h3>
+                    <p>Excel-Listen, E-Mail-Postfaecher, handschriftliche Notizen. Bei 100 Mandanten verlieren Sie den Ueberblick, wer was geschickt hat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTION / AMPEL -->
+    <section class="solution" id="loesung">
+        <div class="solution-inner">
+            <div class="solution-content">
+                <div class="solution-tag reveal">Die Loesung</div>
+                <h2 class="solution-headline reveal">Ein Blick genuegt.<br><em>Ampel statt Chaos.</em></h2>
+                <p class="solution-text reveal">Ihr Dashboard zeigt Ihnen auf einen Blick, welcher Mandant noch Unterlagen schuldet — und wie dringend. Gruen, Gelb, Rot. Keine Liste durchgehen, kein Nachfragen.</p>
+                <a href="mailto:l.brodesser@gmx.de?subject=Clario Demo anfragen" class="btn-primary reveal">Live-Demo sehen &rarr;</a>
+            </div>
+            <div class="ampel-demo reveal">
+                <div class="ampel-header">
+                    <div class="ampel-title">Mandanten</div>
+                    <div class="ampel-filter">Alle &middot; 6 Mandanten</div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot green"></div>
+                    <div class="ampel-name">Schmidt, Thomas</div>
+                    <div class="ampel-status">Vollstaendig</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill full"></div></div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot green"></div>
+                    <div class="ampel-name">Weber, Lisa</div>
+                    <div class="ampel-status">Vollstaendig</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill full"></div></div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot yellow"></div>
+                    <div class="ampel-name">Mueller, Anna</div>
+                    <div class="ampel-status">3 von 5</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill partial"></div></div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot yellow"></div>
+                    <div class="ampel-name">Becker, Jan</div>
+                    <div class="ampel-status">2 von 4</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill partial"></div></div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot red"></div>
+                    <div class="ampel-name">Fischer, Maria</div>
+                    <div class="ampel-status">Ueberfaellig</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill low"></div></div>
+                </div>
+                <div class="ampel-row">
+                    <div class="ampel-dot red"></div>
+                    <div class="ampel-name">Braun, Peter</div>
+                    <div class="ampel-status">Ueberfaellig</div>
+                    <div class="ampel-progress-mini"><div class="ampel-progress-mini-fill low"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="funktionen">
+        <div class="features-inner">
+            <div class="features-tag reveal">Funktionen</div>
+            <h2 class="features-headline reveal">Alles was Ihre Kanzlei braucht.<br><em>Nichts, was sie nicht braucht.</em></h2>
+
+            <div class="feature-row reveal">
+                <div class="feature-number">01</div>
+                <div class="feature-title">Magic Link Portal</div>
+                <div class="feature-desc">Ihr Mandant klickt einen Link und sieht sofort seine Checkliste. Kein Account, kein Passwort, kein App-Download.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+            <div class="feature-row reveal">
+                <div class="feature-number">02</div>
+                <div class="feature-title">Intelligente Checklisten</div>
+                <div class="feature-desc">Vordefinierte Vorlagen fuer alle Mandantentypen — Privatperson, Freiberufler, GmbH, Verein. Sofort einsatzbereit.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+            <div class="feature-row reveal">
+                <div class="feature-number">03</div>
+                <div class="feature-title">Automatische Erinnerungen</div>
+                <div class="feature-desc">14, 7 und 3 Tage vor Frist. Am Fristtag. Ihre Mandanten werden erinnert — Sie nicht.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+            <div class="feature-row reveal">
+                <div class="feature-number">04</div>
+                <div class="feature-title">Digitale Unterschrift</div>
+                <div class="feature-desc">GwG-Vollmacht und Datenschutzerklaerung direkt im Portal unterschreiben. Kein Ausdrucken, kein Scannen.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+            <div class="feature-row reveal">
+                <div class="feature-number">05</div>
+                <div class="feature-title">&bdquo;Wo finde ich das?&ldquo; KI-Assistent</div>
+                <div class="feature-desc">Ihr Mandant weiss nicht, wo seine Riester-Bescheinigung ist? Clario erklaert es ihm — Schritt fuer Schritt, in einfacher Sprache.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+            <div class="feature-row reveal">
+                <div class="feature-number">06</div>
+                <div class="feature-title">Bildqualitaetspruefung</div>
+                <div class="feature-desc">Unscharfe Fotos werden erkannt, bevor sie bei Ihnen ankommen. Ihr Mandant bekommt sofort einen Hinweis.</div>
+                <div class="feature-arrow">&rarr;</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTAL SHOWCASE -->
+    <section class="showcase">
+        <div class="showcase-inner reversed">
+            <div>
+                <div class="showcase-tag reveal">Das Mandantenportal</div>
+                <h2 class="showcase-headline reveal">So einfach, dass <em>jeder</em><br>Mandant es benutzt.</h2>
+                <p class="showcase-text reveal">Kein Account. Kein Passwort. Kein App-Download. Ihr Mandant bekommt eine E-Mail, klickt auf einen Link und sieht seine persoenliche Checkliste. Auf dem Handy optimiert — Foto machen, hochladen, fertig.</p>
+                <ul class="showcase-list reveal">
+                    <li><span class="check-icon">&#10003;</span> Link klicken — sofort loslegen</li>
+                    <li><span class="check-icon">&#10003;</span> Foto mit dem Handy aufnehmen</li>
+                    <li><span class="check-icon">&#10003;</span> Fortschritt jederzeit einsehen</li>
+                    <li><span class="check-icon">&#10003;</span> Digital unterschreiben — kein Drucker noetig</li>
+                    <li><span class="check-icon">&#10003;</span> DSGVO-konform, Serverstandort Frankfurt</li>
+                </ul>
+            </div>
+            <div class="showcase-visual reveal">
+                <div class="portal-mockup-header">
+                    <div class="portal-mockup-logo">Kanzlei Mueller</div>
+                    <div class="portal-mockup-badge">Sicheres Portal</div>
+                </div>
+                <div class="portal-mockup-body">
+                    <div class="portal-mockup-title">GwG Neumandant Onboarding</div>
+                    <div class="portal-mockup-frist">Frist: 15.04.2026</div>
+                    <div class="portal-mockup-progress">
+                        <div class="portal-mockup-progress-text">
+                            <span>1 von 3 Pflichtdokumenten</span>
+                            <span>33%</span>
+                        </div>
+                        <div class="portal-mockup-bar">
+                            <div class="portal-mockup-bar-fill"></div>
+                        </div>
+                    </div>
+                    <div class="portal-doc">
+                        <div class="portal-doc-icon uploaded">&#10003;</div>
+                        <span class="portal-doc-text">Personalausweis (Vorder- und Rueckseite)</span>
+                        <span class="portal-doc-status">Hochgeladen</span>
+                    </div>
+                    <div class="portal-doc">
+                        <div class="portal-doc-icon signature">&#9998;</div>
+                        <span class="portal-doc-text">Vollmacht unterschreiben</span>
+                        <span class="portal-doc-link">Jetzt unterschreiben &rarr;</span>
+                    </div>
+                    <div class="portal-doc">
+                        <div class="portal-doc-icon pending">&#9679;</div>
+                        <span class="portal-doc-text">Datenschutzerklaerung unterschreiben</span>
+                        <span class="portal-doc-status">Ausstehend</span>
+                    </div>
+                    <div class="portal-sign-area">
+                        <div class="portal-sign-label">Bitte unterschreiben Sie hier:</div>
+                        <div class="portal-sign-canvas">Max Mustermann</div>
+                        <div class="portal-sign-btn">Unterschreiben und absenden</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+        <div class="stats-inner">
+            <div class="reveal">
+                <div class="stat-number">100.000</div>
+                <div class="stat-label">Steuerkanzleien in DE</div>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="stat-number">1-3h</div>
+                <div class="stat-label">Taeglicher Zeitverlust</div>
+            </div>
+            <div class="reveal reveal-delay-2">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Accounts fuer Mandanten</div>
+            </div>
+            <div class="reveal reveal-delay-3">
+                <div class="stat-number">DSGVO</div>
+                <div class="stat-label">Server in Frankfurt</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIAL -->
+    <section class="testimonial">
+        <p class="testimonial-quote reveal">&bdquo;Meine Mandanten schicken jetzt einfach alles ueber den Link. Ich muss niemanden mehr anrufen. Das spart mir jeden Morgen eine Stunde.&ldquo;</p>
+        <div class="testimonial-author reveal">Thomas M.</div>
+        <div class="testimonial-role reveal">Steuerberater, Einzelkanzlei — Beta-Tester</div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="preise">
+        <div class="pricing-inner">
+            <div class="pricing-tag reveal">Preise</div>
+            <h2 class="pricing-headline reveal">Einfach. <em>Transparent.</em></h2>
+            <p class="pricing-sub reveal">14 Tage kostenlos testen. Keine Kreditkarte noetig.</p>
+
+            <div class="pricing-grid">
+                <div class="pricing-card reveal">
+                    <div class="pricing-card-name">Starter</div>
+                    <div class="pricing-card-price">&euro;49 <span>/ Monat</span></div>
+                    <div class="pricing-card-desc">Fuer den Einstieg</div>
+                    <ul class="pricing-card-features">
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Bis 30 Mandanten</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> 1 Nutzer</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Mandantenportal</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Automatische Erinnerungen</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> E-Mail-Support</li>
+                    </ul>
+                    <a href="mailto:l.brodesser@gmx.de?subject=Clario Starter anfragen" class="pricing-card-btn">Kostenlos testen</a>
+                </div>
+
+                <div class="pricing-card featured reveal reveal-delay-1">
+                    <div class="pricing-popular">Beliebt</div>
+                    <div class="pricing-card-name">Professional</div>
+                    <div class="pricing-card-price">&euro;99 <span>/ Monat</span></div>
+                    <div class="pricing-card-desc">Fuer wachsende Kanzleien</div>
+                    <ul class="pricing-card-features">
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Bis 100 Mandanten</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> 2 Nutzer</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Alles aus Starter</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> KI-Dokumentenassistent</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Digitale Unterschriften</li>
+                    </ul>
+                    <a href="mailto:l.brodesser@gmx.de?subject=Clario Pro anfragen" class="pricing-card-btn">Kostenlos testen</a>
+                </div>
+
+                <div class="pricing-card reveal reveal-delay-2">
+                    <div class="pricing-card-name">Kanzlei</div>
+                    <div class="pricing-card-price">&euro;199 <span>/ Monat</span></div>
+                    <div class="pricing-card-desc">Fuer etablierte Kanzleien</div>
+                    <ul class="pricing-card-features">
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Unbegrenzte Mandanten</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> 5 Nutzer</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Alles aus Professional</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Vorlagen-Checklisten</li>
+                        <li class="pricing-card-feature"><span class="check-icon">&#10003;</span> Priority Support</li>
+                    </ul>
+                    <a href="mailto:l.brodesser@gmx.de?subject=Clario Kanzlei anfragen" class="pricing-card-btn">Kostenlos testen</a>
+                </div>
+            </div>
+
+            <p class="pricing-note reveal">Jahresabo: 2 Monate gratis. Alle Preise zzgl. MwSt.</p>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2 class="cta-headline reveal">Bereit, Ihre Kanzlei<br><em>zu entlasten?</em></h2>
+        <p class="cta-text reveal">Sehen Sie in 15 Minuten, wie Clario Ihren Arbeitsalltag veraendert. Keine Verpflichtung, keine Kreditkarte.</p>
+        <div class="cta-buttons reveal">
+            <a href="mailto:l.brodesser@gmx.de?subject=Clario Demo anfragen" class="cta-btn-primary">Kostenlose Demo buchen &rarr;</a>
+            <a href="#loesung" class="cta-btn-secondary">Mehr erfahren</a>
+        </div>
+        <div class="cta-contact reveal">
+            <div class="cta-contact-item">E-Mail: <a href="mailto:l.brodesser@gmx.de">l.brodesser@gmx.de</a></div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-copy">&copy; 2026 Clario. Alle Rechte vorbehalten.</div>
+        <div class="footer-links">
+            <a href="#">Impressum</a>
+            <a href="#">Datenschutz</a>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2200);
+        });
+
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Sticky CTA
+        const stickyCta = document.getElementById('stickyCta');
+        const heroSection = document.getElementById('hero');
+        const stickyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                stickyCta.classList.toggle('visible', !entry.isIntersecting);
+            });
+        }, { threshold: 0.3 });
+        stickyObserver.observe(heroSection);
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+
+</body>
+</html>

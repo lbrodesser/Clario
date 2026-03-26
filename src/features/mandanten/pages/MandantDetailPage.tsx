@@ -42,7 +42,7 @@ export function MandantDetailPage() {
 
       <Tabs defaultValue="uebersicht">
         <TabsList>
-          <TabsTrigger value="uebersicht">Uebersicht</TabsTrigger>
+          <TabsTrigger value="uebersicht">Übersicht</TabsTrigger>
           <TabsTrigger value="checklisten">Checklisten</TabsTrigger>
           {zeigtMitarbeiter && (
             <TabsTrigger value="mitarbeiter">Mitarbeiter</TabsTrigger>

@@ -50,7 +50,7 @@ export function ChecklisteEditor({ mandantId, mandantTyp, checklisten }: Checkli
       {zeigeVorlagen && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Vorlage waehlen</CardTitle>
+            <CardTitle className="text-base">Vorlage wählen</CardTitle>
           </CardHeader>
           <CardContent>
             <VorlagenAuswahl

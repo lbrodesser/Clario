@@ -37,7 +37,7 @@ export function MandantenTabelle({ mandanten }: MandantenTabelleProps) {
   const tabs: { key: FilterTab; label: string }[] = [
     { key: 'alle', label: 'Alle' },
     { key: 'ausstehend', label: 'Ausstehend' },
-    { key: 'ueberfaellig', label: 'Ueberfaellig' },
+    { key: 'ueberfaellig', label: 'Überfällig' },
     { key: 'diese_woche', label: 'Diese Woche' },
   ]
 
@@ -64,7 +64,7 @@ export function MandantenTabelle({ mandanten }: MandantenTabelleProps) {
               <th className="px-4 py-3 text-left font-medium">Typ</th>
               <th className="px-4 py-3 text-center font-medium">Status</th>
               <th className="px-4 py-3 text-center font-medium">Offen</th>
-              <th className="px-4 py-3 text-left font-medium">Naechste Frist</th>
+              <th className="px-4 py-3 text-left font-medium">Nächste Frist</th>
               <th className="px-4 py-3 text-right font-medium">Aktion</th>
             </tr>
           </thead>

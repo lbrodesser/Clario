@@ -181,7 +181,7 @@ export function MandantenPage() {
                   onClick={handleSort}
                 />
                 <SortHeader
-                  label="Naechste Frist"
+                  label="Nächste Frist"
                   spalte="frist"
                   aktiv={sortSpalte}
                   richtung={sortRichtung}

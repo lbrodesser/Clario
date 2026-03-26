@@ -65,7 +65,7 @@ export function DevTestPage() {
       <div>
         <h1 className="text-2xl font-bold">Clario — Dev Testseite</h1>
         <p className="text-muted-foreground mt-1">
-          Direktzugang zu allen Portal-Links und Dashboard. Nur fuer Entwicklung.
+          Direktzugang zu allen Portal-Links und Dashboard. Nur für Entwicklung.
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export function DevTestPage() {
       <div>
         <h2 className="text-lg font-semibold mb-4">Mandanten-Portale (Mandanten-Sicht)</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Jeder Link oeffnet das Portal wie es der Mandant sehen wuerde. Kein Login noetig.
+          Jeder Link oeffnet das Portal wie es der Mandant sehen würde. Kein Login nötig.
           Teste auf Desktop UND Handy (QR-Code oder Link kopieren).
         </p>
 
@@ -114,7 +114,7 @@ export function DevTestPage() {
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <a href={`/portal/${portal.token}`} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-3 w-3 mr-2" />
-                    Portal oeffnen
+                    Portal öffnen
                   </a>
                 </Button>
               </CardContent>
@@ -130,7 +130,7 @@ export function DevTestPage() {
           <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
             <li><strong>GwG-Flow testen:</strong> Anna Neukunde — Personalausweis + digitale Unterschrift</li>
             <li><strong>Unterschrift testen:</strong> Vorher unter Einstellungen Test-PDFs als Vollmacht/Datenschutz hochladen</li>
-            <li><strong>Mobile testen:</strong> Portal-Link kopieren und am Handy oeffnen</li>
+            <li><strong>Mobile testen:</strong> Portal-Link kopieren und am Handy öffnen</li>
             <li><strong>Verschiedene Eingabetypen:</strong> EUER hat Kombinations-Felder, PV hat Zahleneingaben</li>
             <li><strong>Dokumente:</strong> Du kannst beliebige Fotos/PDFs hochladen — es muss kein echtes Steuerdokument sein</li>
           </ul>

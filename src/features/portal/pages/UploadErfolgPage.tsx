@@ -10,11 +10,11 @@ export function UploadErfolgPage() {
         <div className="text-4xl">&#10003;</div>
         <h1 className="text-xl font-bold">Vielen Dank!</h1>
         <p className="text-muted-foreground">
-          Ihre Unterlagen wurden erfolgreich uebermittelt.
+          Ihre Unterlagen wurden erfolgreich übermittelt.
         </p>
         <Link to={`/portal/${token}`}>
           <Button variant="outline" className="min-h-[48px]">
-            Zurueck zur Checkliste
+            Zurück zur Checkliste
           </Button>
         </Link>
       </div>

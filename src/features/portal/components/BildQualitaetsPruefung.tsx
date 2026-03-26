@@ -26,7 +26,7 @@ export function BildQualitaetsPruefung({
           <div className="absolute inset-0 flex items-center justify-center bg-background/80">
             <div className="space-y-2 text-center">
               <Skeleton className="mx-auto h-6 w-6 rounded-full" />
-              <p className="text-sm">Qualitaet wird geprueft...</p>
+              <p className="text-sm">Qualität wird geprüft...</p>
             </div>
           </div>
         )}

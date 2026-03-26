@@ -50,7 +50,7 @@ export function DokumentZeile({ dokument }: DokumentZeileProps) {
           {hatQualitaetsWarnung && (
             <div className="mt-1 flex items-center gap-1 text-xs text-ampel-gelb">
               <AlertTriangle className="h-3 w-3" />
-              Bildqualitaet pruefen
+              Bildqualität prüfen
             </div>
           )}
         </div>
