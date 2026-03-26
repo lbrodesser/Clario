@@ -1,13 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/shared/lib/supabase'
 import { ampelFarbe, fortschrittBerechnen, tagesBisFrist } from '@/shared/lib/utils'
-import type { Kanzlei, MandantMitStatus, ChecklisteMitDokumente, DokumentMitDateien, FreierUpload } from '@/shared/types'
+import type { Kanzlei, MandantMitStatus, ChecklisteMitDokumente, DokumentMitDateien, FreierUpload, Mandant, Checkliste, Dokument, DokumentDatei } from '@/shared/types'
 
 export function useKanzlei() {
   return useQuery({
     queryKey: ['kanzlei'],
     queryFn: async () => {
-      // Kanzlei-ID ueber RPC ermitteln (zuverlaessiger als JWT-Email-Claim)
       const { data: kanzleiId, error: rpcError } = await supabase.rpc('meine_kanzlei_id')
       if (rpcError || !kanzleiId) throw new Error('Nicht angemeldet')
 
@@ -23,6 +22,15 @@ export function useKanzlei() {
   })
 }
 
+// Nested Select Typen
+interface MandantMitRelationen extends Mandant {
+  checklisten: (Checkliste & {
+    dokumente: (Dokument & {
+      dokument_dateien: DokumentDatei[]
+    })[]
+  })[]
+}
+
 export function useMandantenMitStatus() {
   const { data: kanzlei } = useKanzlei()
 
@@ -30,87 +38,75 @@ export function useMandantenMitStatus() {
     queryKey: ['mandanten-mit-status', kanzlei?.id],
     enabled: !!kanzlei,
     queryFn: async () => {
-      const { data: mandanten, error: mandantenError } = await supabase
+      // EINE Query statt hunderte (Nested Select)
+      const { data, error } = await supabase
         .from('mandanten')
-        .select('*')
+        .select(`
+          *,
+          checklisten (
+            *,
+            dokumente (
+              *,
+              dokument_dateien (*)
+            )
+          )
+        `)
         .eq('kanzlei_id', kanzlei!.id)
 
-      if (mandantenError) throw mandantenError
+      if (error) throw error
 
-      const result: MandantMitStatus[] = []
+      const mandanten = data as unknown as MandantMitRelationen[]
 
-      for (const mandant of mandanten) {
-        const { data: checklisten, error: checklistenError } = await supabase
-          .from('checklisten')
-          .select('*')
-          .eq('mandant_id', mandant.id)
-
-        if (checklistenError) throw checklistenError
-
-        const checklistenMitDoks: ChecklisteMitDokumente[] = []
+      return mandanten.map((mandant): MandantMitStatus => {
         let offeneDoks = 0
         let letzteAktivitaet: string | null = null
 
-        for (const cl of checklisten) {
-          const { data: dokumente } = await supabase
-            .from('dokumente')
-            .select('*')
-            .eq('checkliste_id', cl.id)
-            .order('sortierung')
+        const checklistenMitDoks: ChecklisteMitDokumente[] = (mandant.checklisten ?? []).map((cl) => {
+          const doks = cl.dokumente ?? []
 
-          const doks = dokumente ?? []
-
-          const dokumenteMitDateien: DokumentMitDateien[] = []
-          for (const dok of doks) {
-            const { data: dateien } = await supabase
-              .from('dokument_dateien')
-              .select('*')
-              .eq('dokument_id', dok.id)
-              .order('hochgeladen_am', { ascending: false })
-
-            const d: DokumentMitDateien = { ...dok, dateien: dateien ?? [] }
-            dokumenteMitDateien.push(d)
+          const dokumenteMitDateien: DokumentMitDateien[] = doks.map((dok) => {
+            const dateien = (dok.dokument_dateien ?? []).sort(
+              (a, b) => new Date(b.hochgeladen_am).getTime() - new Date(a.hochgeladen_am).getTime()
+            )
 
             if (dok.pflicht && dok.status === 'ausstehend') offeneDoks++
-            if (dateien && dateien.length > 0) {
+            if (dateien.length > 0) {
               const letztesUpload = dateien[0].hochgeladen_am
               if (!letzteAktivitaet || letztesUpload > letzteAktivitaet) {
                 letzteAktivitaet = letztesUpload
               }
             }
-          }
 
-          checklistenMitDoks.push({
+            return { ...dok, dateien }
+          })
+
+          return {
             ...cl,
-            dokumente: dokumenteMitDateien,
+            dokumente: dokumenteMitDateien.sort((a, b) => a.sortierung - b.sortierung),
             fortschritt: fortschrittBerechnen(doks),
             tage_bis_frist: tagesBisFrist(cl.frist),
-          })
-        }
+          }
+        })
 
         // Ampel: schlimmste Farbe aller Checklisten
-        let mandantAmpel = ampelFarbe(
-          checklistenMitDoks[0]?.status ?? 'offen',
-          checklistenMitDoks[0]?.frist ?? new Date().toISOString(),
-          kanzlei!
-        )
+        let mandantAmpel = checklistenMitDoks.length === 0
+          ? 'gruen' as const
+          : ampelFarbe(checklistenMitDoks[0].status, checklistenMitDoks[0].frist, kanzlei!)
+
         for (const cl of checklistenMitDoks) {
           const farbe = ampelFarbe(cl.status, cl.frist, kanzlei!)
           if (farbe === 'rot') mandantAmpel = 'rot'
           else if (farbe === 'gelb' && mandantAmpel === 'gruen') mandantAmpel = 'gelb'
         }
-        if (checklistenMitDoks.length === 0) mandantAmpel = 'gruen'
 
-        result.push({
+        return {
           ...mandant,
           checklisten: checklistenMitDoks,
           ampel: mandantAmpel,
           offene_dokumente: offeneDoks,
           letzte_aktivitaet: letzteAktivitaet,
-        })
-      }
-
-      return result
+        }
+      })
     },
   })
 }
