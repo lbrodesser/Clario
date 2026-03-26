@@ -36,9 +36,16 @@ export function DokumentZeile({ dokument }: DokumentZeileProps) {
             </p>
           )}
           {istSigniert && (
-            <Badge variant="outline" className="mt-1 border-ampel-gruen text-ampel-gruen text-xs">
-              Digital unterschrieben
-            </Badge>
+            <div className="mt-1 flex items-center gap-2">
+              <Badge variant="outline" className="border-ampel-gruen text-ampel-gruen text-xs">
+                Digital unterschrieben
+              </Badge>
+              {dokument.dateien.find((d) => d.ist_signiert)?.signatur_zeitpunkt && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDatum(dokument.dateien.find((d) => d.ist_signiert)!.signatur_zeitpunkt!)}
+                </span>
+              )}
+            </div>
           )}
           {hatQualitaetsWarnung && (
             <div className="mt-1 flex items-center gap-1 text-xs text-ampel-gelb">
