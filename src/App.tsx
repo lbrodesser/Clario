@@ -15,6 +15,7 @@ import { DokumentePage } from '@/features/dokumente/pages/DokumentePage'
 import { EinstellungenPage } from '@/features/einstellungen/pages/EinstellungenPage'
 import { PortalPage } from '@/features/portal/pages/PortalPage'
 import { UploadErfolgPage } from '@/features/portal/pages/UploadErfolgPage'
+import { DevTestPage } from '@/features/dev/pages/DevTestPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,9 @@ function App() {
             <Route path="/portal/:token" element={<PortalPage />} />
             <Route path="/portal/:token/erfolg" element={<UploadErfolgPage />} />
           </Route>
+
+          {/* Dev-Testseite (nur Entwicklung) */}
+          <Route path="/dev" element={<DevTestPage />} />
 
           {/* Redirects */}
           <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
