@@ -5,6 +5,7 @@ import { ChecklisteAnsicht } from '../components/ChecklisteAnsicht'
 import { PortalErrorBoundary } from '../components/PortalErrorBoundary'
 import { FortschrittsAnzeige } from '../components/FortschrittsAnzeige'
 import { FreierUploadButton } from '../components/FreierUploadButton'
+import { PortalChat } from '../components/PortalChat'
 import { usePortalDaten } from '../hooks/usePortal'
 import { formatDatum } from '@/shared/lib/utils'
 
@@ -102,6 +103,8 @@ export function PortalPage() {
           />
         </>
       )}
+      {/* KI-Chat */}
+      <PortalChat portalToken={token ?? ''} kanzleiName={kanzlei.name} />
     </div>
   )
 }
