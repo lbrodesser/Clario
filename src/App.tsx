@@ -11,7 +11,7 @@ import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { MandantenPage } from '@/features/mandanten/pages/MandantenPage'
 import { MandantNeuPage } from '@/features/mandanten/pages/MandantNeuPage'
 import { MandantDetailPage } from '@/features/mandanten/pages/MandantDetailPage'
-import { DokumentePage } from '@/features/dokumente/pages/DokumentePage'
+import { VorlagenPage } from '@/features/vorlagen/pages/VorlagenPage'
 import { EinstellungenPage } from '@/features/einstellungen/pages/EinstellungenPage'
 import { PortalPage } from '@/features/portal/pages/PortalPage'
 import { UploadErfolgPage } from '@/features/portal/pages/UploadErfolgPage'
@@ -43,7 +43,7 @@ function App() {
               <Route path="/app/mandanten" element={<MandantenPage />} />
               <Route path="/app/mandanten/neu" element={<MandantNeuPage />} />
               <Route path="/app/mandanten/:id" element={<MandantDetailPage />} />
-              <Route path="/app/dokumente" element={<DokumentePage />} />
+              <Route path="/app/vorlagen" element={<VorlagenPage />} />
               <Route path="/app/einstellungen" element={<EinstellungenPage />} />
             </Route>
           </Route>

@@ -64,6 +64,7 @@ export interface Checkliste {
   wiederholung_intervall: 'monatlich' | 'quartalsweise' | 'jaehrlich' | null
   naechste_erstellung: string | null
   freie_uploads_erlaubt: boolean
+  erstellt_von_vorlage_id?: string | null
   created_at: string
 }
 

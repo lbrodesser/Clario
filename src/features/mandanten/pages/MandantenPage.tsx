@@ -174,15 +174,15 @@ export function MandantenPage() {
                   onClick={handleSort}
                 />
                 <SortHeader
-                  label="Offen"
-                  spalte="offene"
+                  label="Nächste Frist"
+                  spalte="frist"
                   aktiv={sortSpalte}
                   richtung={sortRichtung}
                   onClick={handleSort}
                 />
                 <SortHeader
-                  label="Nächste Frist"
-                  spalte="frist"
+                  label="Offen"
+                  spalte="offene"
                   aktiv={sortSpalte}
                   richtung={sortRichtung}
                   onClick={handleSort}
@@ -272,15 +272,15 @@ function MandantZeile({ mandant }: { mandant: MandantMitStatus }) {
         <AmpelBadge farbe={mandant.ampel} />
       </td>
       <td className="px-4 py-3">
-        {mandant.offene_dokumente > 0 ? (
-          <span className="text-sm font-medium">{mandant.offene_dokumente}</span>
+        {frist ? (
+          <span className="text-sm">{formatDatum(frist)}</span>
         ) : (
           <span className="text-xs text-muted-foreground">-</span>
         )}
       </td>
       <td className="px-4 py-3 hidden md:table-cell">
-        {frist ? (
-          <span className="text-sm">{formatDatum(frist)}</span>
+        {mandant.offene_dokumente > 0 ? (
+          <span className="text-sm font-medium">{mandant.offene_dokumente}</span>
         ) : (
           <span className="text-xs text-muted-foreground">-</span>
         )}

@@ -7,7 +7,7 @@ import { supabase } from '@/shared/lib/supabase'
 const navItems = [
   { to: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/app/mandanten', label: 'Mandanten', icon: Users },
-  { to: '/app/dokumente', label: 'Dokumente', icon: FileText },
+  { to: '/app/vorlagen', label: 'Vorlagen', icon: FileText },
   { to: '/app/einstellungen', label: 'Einstellungen', icon: Settings },
 ]
 
