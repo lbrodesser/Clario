@@ -10,7 +10,9 @@ import { useRegister } from '../hooks/useAuth'
 const registerSchema = z.object({
   kanzleiName: z.string().min(2, 'Bitte Kanzleiname eingeben'),
   email: z.string().email('Bitte gueltige E-Mail-Adresse eingeben'),
-  passwort: z.string().min(8, 'Mindestens 8 Zeichen'),
+  passwort: z.string()
+    .min(10, 'Mindestens 10 Zeichen')
+    .regex(/\d/, 'Mindestens eine Zahl erforderlich'),
   passwortBestaetigung: z.string(),
 }).refine((data) => data.passwort === data.passwortBestaetigung, {
   message: 'Passwoerter stimmen nicht ueberein',
@@ -86,7 +88,9 @@ export function RegisterForm() {
           </div>
           {registrieren.error && (
             <p className="text-sm text-destructive">
-              Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.
+              {registrieren.error instanceof Error
+                ? registrieren.error.message
+                : 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.'}
             </p>
           )}
           <Button type="submit" className="w-full" disabled={registrieren.isPending}>

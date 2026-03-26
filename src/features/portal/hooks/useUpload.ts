@@ -1,6 +1,65 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/shared/lib/supabase'
 
+// Erlaubte Dateitypen und Groessenlimits
+const ERLAUBTE_TYPEN = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/heic',
+  'image/heif',
+  'text/xml',
+  'application/xml',
+]
+
+const MAX_GROESSE_BYTES: Record<string, number> = {
+  'application/pdf': 10 * 1024 * 1024,
+  'image/jpeg': 5 * 1024 * 1024,
+  'image/png': 5 * 1024 * 1024,
+  'image/heic': 5 * 1024 * 1024,
+  'image/heif': 5 * 1024 * 1024,
+  'text/xml': 5 * 1024 * 1024,
+  'application/xml': 5 * 1024 * 1024,
+}
+
+// Magic Bytes fuer Dateityp-Validierung
+async function pruefeDatei(datei: File): Promise<void> {
+  // MIME-Type pruefen
+  if (!ERLAUBTE_TYPEN.includes(datei.type)) {
+    throw new Error(`Dateityp "${datei.type || 'unbekannt'}" nicht erlaubt. Erlaubt: PDF, JPG, PNG, XML`)
+  }
+
+  // Dateigroesse pruefen
+  const maxGroesse = MAX_GROESSE_BYTES[datei.type] ?? 5 * 1024 * 1024
+  if (datei.size > maxGroesse) {
+    throw new Error(
+      `Datei zu gross (${(datei.size / 1024 / 1024).toFixed(1)} MB). Maximum: ${maxGroesse / 1024 / 1024} MB`
+    )
+  }
+
+  // Magic Bytes pruefen (erste 4 Bytes)
+  const header = await datei.slice(0, 4).arrayBuffer()
+  const bytes = new Uint8Array(header)
+
+  if (datei.type === 'application/pdf') {
+    // %PDF
+    if (bytes[0] !== 0x25 || bytes[1] !== 0x50 || bytes[2] !== 0x44 || bytes[3] !== 0x46) {
+      throw new Error('Datei ist kein echtes PDF')
+    }
+  } else if (datei.type === 'image/jpeg') {
+    // FF D8
+    if (bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+      throw new Error('Datei ist kein echtes JPEG')
+    }
+  } else if (datei.type === 'image/png') {
+    // 89 50 4E 47
+    if (bytes[0] !== 0x89 || bytes[1] !== 0x50 || bytes[2] !== 0x4e || bytes[3] !== 0x47) {
+      throw new Error('Datei ist kein echtes PNG')
+    }
+  }
+  // HEIC und XML haben keine zuverlaessigen Magic Bytes — MIME-Type reicht
+}
+
 interface UploadParams {
   dokumentId: string
   datei: File
@@ -28,6 +87,9 @@ export function useUpload() {
       signaturZeitpunkt,
       signaturIp,
     }: UploadParams) => {
+      // Datei validieren
+      await pruefeDatei(datei)
+
       // Datei in Supabase Storage hochladen
       const dateiPfad = `${portalToken}/${dokumentId}/${Date.now()}_${datei.name}`
       const { error: uploadError } = await supabase.storage
@@ -117,6 +179,9 @@ export function useFreierUpload() {
 
   return useMutation({
     mutationFn: async ({ mandantId, checklisteId, datei, beschreibung, portalToken }: FreierUploadParams) => {
+      // Datei validieren
+      await pruefeDatei(datei)
+
       const dateiPfad = `freie/${portalToken}/${Date.now()}_${datei.name}`
       const { error: uploadError } = await supabase.storage
         .from('dokumente')

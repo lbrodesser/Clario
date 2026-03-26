@@ -82,7 +82,7 @@ serve(async (req) => {
           </div>`
         : ''
 
-      await fetch('https://api.resend.com/emails', {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,6 +102,10 @@ serve(async (req) => {
           `,
         }),
       })
+
+      if (!emailResponse.ok) {
+        console.error('Resend API Fehler:', emailResponse.status, await emailResponse.text())
+      }
     }
 
     return new Response(

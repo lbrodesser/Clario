@@ -23,6 +23,11 @@ export function usePortalDaten(token: string) {
 
       if (clError || !checkliste) throw new Error('Checkliste nicht gefunden')
 
+      // Token-Validierung: sicherstellen dass der Token uebereinstimmt
+      if ((checkliste as Checkliste).portal_token !== token) {
+        throw new Error('Ungueltiger Zugangslink')
+      }
+
       // Mandant laden
       const { data: mandant, error: mError } = await supabase
         .from('mandanten')

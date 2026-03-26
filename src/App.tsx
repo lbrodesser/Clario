@@ -6,6 +6,7 @@ import { PortalLayout } from '@/shared/components/layout/PortalLayout'
 import { ProtectedRoute } from '@/shared/components/layout/ProtectedRoute'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
+import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { MandantenPage } from '@/features/mandanten/pages/MandantenPage'
 import { MandantNeuPage } from '@/features/mandanten/pages/MandantNeuPage'
@@ -32,6 +33,7 @@ function App() {
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/auth/verify" element={<VerifyEmailPage />} />
 
           {/* Kanzlei (protected) */}
           <Route element={<ProtectedRoute />}>

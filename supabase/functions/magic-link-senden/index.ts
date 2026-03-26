@@ -101,7 +101,7 @@ serve(async (req) => {
         manuell: `${kanzlei.name}: Erinnerung an ${checkliste.titel}`,
       }
 
-      await fetch('https://api.resend.com/emails', {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,6 +139,15 @@ serve(async (req) => {
           `,
         }),
       })
+
+      if (!emailResponse.ok) {
+        const errorBody = await emailResponse.text()
+        console.error('Resend API Fehler:', emailResponse.status, errorBody)
+        return new Response(
+          JSON.stringify({ success: false, error: 'E-Mail konnte nicht gesendet werden' }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
     }
 
     // Erinnerung loggen
