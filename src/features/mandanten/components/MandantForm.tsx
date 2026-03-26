@@ -43,7 +43,7 @@ export function MandantForm({ initialDaten, onSubmit, isLoading }: MandantFormPr
   const typ = watch('typ')
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, (validationErrors) => console.error('Formular-Validierung fehlgeschlagen:', validationErrors))} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
@@ -88,6 +88,18 @@ export function MandantForm({ initialDaten, onSubmit, isLoading }: MandantFormPr
         <Label htmlFor="notizen">Notizen (optional)</Label>
         <Textarea id="notizen" placeholder="Interne Notizen zum Mandanten..." {...register('notizen')} />
       </div>
+
+      {/* Validierungsfehler anzeigen */}
+      {Object.keys(errors).length > 0 && (
+        <div className="rounded-lg border border-destructive p-3">
+          <p className="text-sm font-medium text-destructive">Bitte pruefen Sie folgende Felder:</p>
+          <ul className="mt-1 list-disc pl-4 text-sm text-destructive">
+            {Object.entries(errors).map(([feld, fehler]) => (
+              <li key={feld}>{feld}: {fehler?.message ?? 'Ungueltig'}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Button type="submit" disabled={isLoading}>
         {isLoading ? 'Wird gespeichert...' : 'Mandant speichern'}

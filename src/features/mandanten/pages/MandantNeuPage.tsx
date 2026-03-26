@@ -23,6 +23,11 @@ export function MandantNeuPage() {
             }}
             isLoading={erstellen.isPending}
           />
+          {erstellen.error && (
+            <p className="mt-4 text-sm text-destructive">
+              Fehler: {erstellen.error.message}
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

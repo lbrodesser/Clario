@@ -65,17 +65,12 @@ export function useMandantErstellen() {
 
   return useMutation({
     mutationFn: async (daten: MandantErstellen) => {
-      // Kanzlei-ID ermitteln
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Nicht angemeldet')
+      // Kanzlei-ID ueber RPC ermitteln (zuverlaessiger als JWT-Email-Claim)
+      const { data: kanzleiId, error: rpcError } = await supabase
+        .rpc('meine_kanzlei_id')
 
-      const { data: kanzlei } = await supabase
-        .from('kanzleien')
-        .select('id')
-        .eq('email', user.email)
-        .single()
-
-      if (!kanzlei) throw new Error('Kanzlei nicht gefunden')
+      if (rpcError || !kanzleiId) throw new Error('Kanzlei nicht gefunden')
+      const kanzlei = { id: kanzleiId as string }
 
       const { data, error } = await supabase
         .from('mandanten')

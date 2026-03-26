@@ -13,16 +13,38 @@ ALTER TABLE erinnerungen_log ENABLE ROW LEVEL SECURITY;
 -- Helper: Kanzlei-ID des eingeloggten Users
 CREATE OR REPLACE FUNCTION auth_kanzlei_id()
 RETURNS uuid AS $$
-  SELECT id FROM kanzleien WHERE email = auth.jwt()->>'email'
+  SELECT k.id FROM kanzleien k
+  JOIN auth.users u ON u.email = k.email
+  WHERE u.id = auth.uid()
 $$ LANGUAGE sql STABLE SECURITY DEFINER;
 
 -- Kanzlei: nur eigene Zeile
 CREATE POLICY kanzlei_own ON kanzleien
   FOR ALL USING (id = auth_kanzlei_id());
 
+-- Kanzlei: INSERT bei Registrierung (eigene E-Mail)
+CREATE POLICY kanzlei_insert_own ON kanzleien
+  FOR INSERT WITH CHECK (email = auth.jwt()->>'email');
+
+-- Kanzlei: Portal-Lesen (fuer Mandanten-Portal Header)
+CREATE POLICY kanzlei_portal_read ON kanzleien
+  FOR SELECT USING (
+    id IN (
+      SELECT m.kanzlei_id FROM mandanten m
+      JOIN checklisten c ON c.mandant_id = m.id
+      WHERE c.portal_token IS NOT NULL
+    )
+  );
+
 -- Mandanten: nur eigene Kanzlei
 CREATE POLICY mandanten_own ON mandanten
   FOR ALL USING (kanzlei_id = auth_kanzlei_id());
+
+-- Mandanten: Portal-Lesen (fuer Portal-Seite)
+CREATE POLICY mandanten_portal_read ON mandanten
+  FOR SELECT USING (
+    id IN (SELECT mandant_id FROM checklisten WHERE portal_token IS NOT NULL)
+  );
 
 -- Mitarbeiter: ueber Mandant
 CREATE POLICY mitarbeiter_own ON mitarbeiter

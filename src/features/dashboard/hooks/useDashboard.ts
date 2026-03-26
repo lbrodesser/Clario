@@ -7,13 +7,14 @@ export function useKanzlei() {
   return useQuery({
     queryKey: ['kanzlei'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Nicht angemeldet')
+      // Kanzlei-ID ueber RPC ermitteln (zuverlaessiger als JWT-Email-Claim)
+      const { data: kanzleiId, error: rpcError } = await supabase.rpc('meine_kanzlei_id')
+      if (rpcError || !kanzleiId) throw new Error('Nicht angemeldet')
 
       const { data, error } = await supabase
         .from('kanzleien')
         .select('*')
-        .eq('email', user.email)
+        .eq('id', kanzleiId)
         .single()
 
       if (error) throw error
