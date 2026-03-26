@@ -8,6 +8,8 @@ interface SignaturPadProps {
 
 const CANVAS_WIDTH = 640
 const CANVAS_HEIGHT = 200
+// Mindestens 0.5% der Canvas-Pixel muessen beschrieben sein
+const MIN_COVERAGE = 0.005
 
 export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -18,7 +20,7 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // HiDPI-Skalierung: Canvas intern groesser rendern
+    // HiDPI-Skalierung
     const dpr = window.devicePixelRatio || 1
     canvas.width = CANVAS_WIDTH * dpr
     canvas.height = CANVAS_HEIGHT * dpr
@@ -26,7 +28,6 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Skalierung fuer scharfe Darstellung
     ctx.scale(dpr, dpr)
 
     const setzeStilEinstellungen = () => {
@@ -37,10 +38,12 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
     }
     setzeStilEinstellungen()
 
-    const getPosition = (e: MouseEvent | TouchEvent): { x: number; y: number } => {
+    const getPosition = (e: MouseEvent | TouchEvent): { x: number; y: number } | null => {
       const rect = canvas.getBoundingClientRect()
 
       if ('touches' in e) {
+        // Nur erster Finger — Multi-Touch ignorieren
+        if (e.touches.length > 1) return null
         const touch = e.touches[0]
         return {
           x: (touch.clientX - rect.left) * (CANVAS_WIDTH / rect.width),
@@ -55,8 +58,9 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
 
     const handleStart = (e: MouseEvent | TouchEvent) => {
       e.preventDefault()
-      isDrawingRef.current = true
       const pos = getPosition(e)
+      if (!pos) return
+      isDrawingRef.current = true
       ctx.beginPath()
       ctx.moveTo(pos.x, pos.y)
     }
@@ -65,6 +69,7 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
       if (!isDrawingRef.current) return
       e.preventDefault()
       const pos = getPosition(e)
+      if (!pos) return
       ctx.lineTo(pos.x, pos.y)
       ctx.stroke()
       setHasDrawn(true)
@@ -107,9 +112,28 @@ export function SignaturPad({ onSignieren, isLoading }: SignaturPadProps) {
     setHasDrawn(false)
   }
 
+  const istGueltigeUnterschrift = (): boolean => {
+    const canvas = canvasRef.current
+    if (!canvas) return false
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return false
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    let beschriebenePixel = 0
+    for (let i = 3; i < imageData.data.length; i += 4) {
+      if (imageData.data[i] > 0) beschriebenePixel++
+    }
+    return beschriebenePixel / (canvas.width * canvas.height) > MIN_COVERAGE
+  }
+
   const handleSignieren = () => {
     const canvas = canvasRef.current
     if (!canvas || !hasDrawn) return
+
+    if (!istGueltigeUnterschrift()) {
+      return // Zu wenig gezeichnet — Button bleibt inaktiv
+    }
+
     const dataUrl = canvas.toDataURL('image/png')
     onSignieren(dataUrl)
   }

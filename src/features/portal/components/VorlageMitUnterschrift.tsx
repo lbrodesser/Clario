@@ -70,6 +70,12 @@ export function VorlageMitUnterschrift({
     setPdfFehler(null)
 
     try {
+      // URL-Validierung: nur eigene Supabase-Instanz erlauben
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      if (supabaseUrl && !dokument.vorlage_pdf_url.startsWith(supabaseUrl)) {
+        throw new Error('Ungueltige Vorlagen-URL')
+      }
+
       // Original-PDF laden
       const pdfResponse = await fetch(dokument.vorlage_pdf_url)
       if (!pdfResponse.ok) {
@@ -81,20 +87,28 @@ export function VorlageMitUnterschrift({
       if (pdfBytes.byteLength > 10 * 1024 * 1024) {
         throw new Error('PDF ist zu gross fuer die Verarbeitung (max. 10 MB)')
       }
+
+      // Magic Bytes pruefen: %PDF
+      const headerBytes = new Uint8Array(pdfBytes.slice(0, 4))
+      if (headerBytes[0] !== 0x25 || headerBytes[1] !== 0x50 || headerBytes[2] !== 0x44 || headerBytes[3] !== 0x46) {
+        throw new Error('Ungueltige PDF-Datei')
+      }
+
       const pdfDoc = await PDFDocument.load(pdfBytes)
 
       // Signatur-PNG einbetten
       const signaturPngBytes = await fetch(signaturDataUrl).then((r) => r.arrayBuffer())
       const signaturBild = await pdfDoc.embedPng(signaturPngBytes)
 
-      // Zeitstempel
+      // Zeitstempel mit Sekunden
       const jetzt = new Date()
-      const zeitstempel = jetzt.toLocaleDateString('de-DE', {
+      const zeitstempel = jetzt.toLocaleString('de-DE', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+        second: '2-digit',
       })
 
       // Neue Signatur-Seite anhaengen (verhindert Ueberlappung mit Originalinhalt)
@@ -164,6 +178,18 @@ export function VorlageMitUnterschrift({
       const dateiName = `${dokument.titel.replace(/\s+/g, '_')}_signiert.pdf`
       const datei = new File([blob], dateiName, { type: 'application/pdf' })
 
+      // IP-Adresse fuer Audit-Trail ermitteln
+      let signaturIp = 'nicht ermittelbar'
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json')
+        if (ipResponse.ok) {
+          const ipData: { ip: string } = await ipResponse.json()
+          signaturIp = ipData.ip
+        }
+      } catch {
+        // Fallback: IP nicht verfuegbar (z.B. durch AdBlocker)
+      }
+
       // Hochladen
       upload.mutate({
         dokumentId: dokument.id,
@@ -171,7 +197,7 @@ export function VorlageMitUnterschrift({
         portalToken,
         istSigniert: true,
         signaturZeitpunkt: jetzt.toISOString(),
-        signaturIp: 'nicht verfuegbar',
+        signaturIp,
       })
     } catch (err) {
       const nachricht = err instanceof Error ? err.message : 'Unbekannter Fehler'

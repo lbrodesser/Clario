@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom'
 import { Skeleton } from '@/shared/components/ui/skeleton'
 import { Separator } from '@/shared/components/ui/separator'
 import { ChecklisteAnsicht } from '../components/ChecklisteAnsicht'
+import { PortalErrorBoundary } from '../components/PortalErrorBoundary'
 import { FortschrittsAnzeige } from '../components/FortschrittsAnzeige'
 import { FreierUploadButton } from '../components/FreierUploadButton'
 import { usePortalDaten } from '../hooks/usePortal'
@@ -80,13 +81,15 @@ export function PortalPage() {
       )}
 
       {/* Dokumentenliste */}
-      <ChecklisteAnsicht
-        checkliste={checkliste}
-        portalToken={token ?? ''}
-        mandantTyp={mandant.typ}
-        mandantName={mandant.name}
-        kanzleiName={kanzlei.name}
-      />
+      <PortalErrorBoundary>
+        <ChecklisteAnsicht
+          checkliste={checkliste}
+          portalToken={token ?? ''}
+          mandantTyp={mandant.typ}
+          mandantName={mandant.name}
+          kanzleiName={kanzlei.name}
+        />
+      </PortalErrorBoundary>
 
       {/* Freier Upload */}
       {checkliste.freie_uploads_erlaubt && (

@@ -4,6 +4,63 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 import { useDokumentAnleitung } from '../hooks/useDokumentAnleitung'
 import type { DokumentAnleitung, MandantTyp } from '@/shared/types'
 
+// Fallback-Texte wenn Claude API nicht erreichbar
+const FALLBACK_ANLEITUNGEN: Record<string, DokumentAnleitung> = {
+  personalausweis: {
+    anleitung: 'Halten Sie Ihren gueltigen Personalausweis bereit.',
+    schritte: [
+      'Fotografieren Sie die Vorderseite bei guter Beleuchtung.',
+      'Fotografieren Sie die Rueckseite separat.',
+      'Achten Sie darauf, dass alle Ecken sichtbar sind.',
+    ],
+    alternativ: 'Alternativ koennen Sie auch Ihren Reisepass verwenden.',
+  },
+  vollmacht: {
+    anleitung: 'Das Vollmacht-Formular wird Ihnen von Ihrer Steuerkanzlei bereitgestellt.',
+    schritte: [
+      'Lesen Sie das Dokument sorgfaeltig durch.',
+      'Unterschreiben Sie digital im Unterschriftsfeld.',
+      'Klicken Sie auf "Unterschreiben und absenden".',
+    ],
+    alternativ: null,
+  },
+  datenschutz: {
+    anleitung: 'Die Datenschutzerklaerung wird von Ihrer Steuerkanzlei bereitgestellt.',
+    schritte: [
+      'Lesen Sie die Datenschutzerklaerung durch.',
+      'Unterschreiben Sie digital im Unterschriftsfeld.',
+      'Klicken Sie auf "Unterschreiben und absenden".',
+    ],
+    alternativ: null,
+  },
+  steuerbescheid: {
+    anleitung: 'Ihren letzten Steuerbescheid finden Sie in Ihren Unterlagen vom Finanzamt.',
+    schritte: [
+      'Pruefen Sie Ihren Briefkasten oder Ihre Ablage nach Post vom Finanzamt.',
+      'Alternativ: Loggen Sie sich in Ihr ELSTER-Konto ein unter "Bescheide".',
+      'Fotografieren oder scannen Sie das Dokument.',
+    ],
+    alternativ: 'Falls nicht auffindbar, fragen Sie Ihre Kanzlei nach einer Kopie.',
+  },
+  lohnsteuerbescheinigung: {
+    anleitung: 'Ihre Lohnsteuerbescheinigung erhalten Sie von Ihrem Arbeitgeber.',
+    schritte: [
+      'Die Bescheinigung wird meist im Februar/Maerz fuer das Vorjahr ausgestellt.',
+      'Pruefen Sie Ihre Gehaltsunterlagen oder fragen Sie Ihre Personalabteilung.',
+      'Oft finden Sie sie auch in Ihrem Online-Gehaltsportal.',
+    ],
+    alternativ: null,
+  },
+}
+
+function findeFallback(dokumentTitel: string): DokumentAnleitung | null {
+  const titelLower = dokumentTitel.toLowerCase()
+  for (const [schluessel, anleitung] of Object.entries(FALLBACK_ANLEITUNGEN)) {
+    if (titelLower.includes(schluessel)) return anleitung
+  }
+  return null
+}
+
 interface WoFindeIchDasProps {
   dokumentTitel: string
   tippBasis: string | null
@@ -30,6 +87,11 @@ export function WoFindeIchDas({ dokumentTitel, tippBasis, mandantTyp }: WoFindeI
       },
       {
         onSuccess: (data) => setAnleitung(data),
+        onError: () => {
+          // Fallback bei API-Fehler
+          const fallback = findeFallback(dokumentTitel)
+          if (fallback) setAnleitung(fallback)
+        },
       }
     )
   }

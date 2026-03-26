@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/shared/lib/supabase'
 import type { QualitaetsPruefung } from '@/shared/types'
 
+const MAX_BASE64_LAENGE = 5_000_000 // ~3.75MB decoded
+
 interface PruefungParams {
   bildBase64: string
   dokumentTitel: string
@@ -10,12 +12,25 @@ interface PruefungParams {
 export function useBildQualitaet() {
   return useMutation({
     mutationFn: async ({ bildBase64, dokumentTitel }: PruefungParams): Promise<QualitaetsPruefung> => {
-      const { data, error } = await supabase.functions.invoke('bild-qualitaet', {
-        body: { bildBase64, dokumentTitel },
-      })
+      // Base64-Groesse pruefen
+      if (bildBase64.length > MAX_BASE64_LAENGE) {
+        throw new Error('Bild zu gross fuer Qualitaetspruefung (max. ca. 3.75 MB)')
+      }
 
-      if (error) throw error
-      return data as QualitaetsPruefung
+      // Timeout: 15 Sekunden
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+      try {
+        const { data, error } = await supabase.functions.invoke('bild-qualitaet', {
+          body: { bildBase64, dokumentTitel },
+        })
+
+        if (error) throw error
+        return data as QualitaetsPruefung
+      } finally {
+        clearTimeout(timeoutId)
+      }
     },
   })
 }
