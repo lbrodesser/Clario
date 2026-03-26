@@ -26,32 +26,34 @@ export function DevTestPage() {
   const [loginStatus, setLoginStatus] = useState('')
 
   const handleDevLogin = async () => {
+    if (loginStatus === 'Wird angemeldet...') return // Doppelklick-Schutz
     setLoginStatus('Wird angemeldet...')
-    // Versuche Login mit Dev-Account
+
     const { error } = await supabase.auth.signInWithPassword({
       email: DEV_EMAIL,
       password: DEV_PASSWORT,
     })
 
     if (error) {
-      // Account existiert noch nicht — erstellen
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: DEV_EMAIL,
-        password: DEV_PASSWORT,
-      })
+      setLoginStatus(`Login fehlgeschlagen: ${error.message}. Warte 60 Sekunden und versuche es erneut.`)
+      return
+    }
 
-      if (signUpError) {
-        setLoginStatus(`Fehler: ${signUpError.message}`)
-        return
-      }
+    navigate('/app/dashboard')
+  }
 
-      // Kanzlei erstellen
-      await supabase.from('kanzleien').insert({
-        name: 'Testkanzlei Mueller',
-        email: DEV_EMAIL,
-      })
+  // Auch mit dem bestehenden Account einloggen
+  const handleHauptLogin = async () => {
+    if (loginStatus === 'Wird angemeldet...') return
+    setLoginStatus('Wird angemeldet...')
 
-      setLoginStatus('Dev-Account erstellt. Bitte erneut klicken.')
+    const { error } = await supabase.auth.signInWithPassword({
+      email: 'l.brodesser@gmx.de',
+      password: window.prompt('Passwort fuer l.brodesser@gmx.de:') ?? '',
+    })
+
+    if (error) {
+      setLoginStatus(`Login fehlgeschlagen: ${error.message}`)
       return
     }
 
@@ -73,12 +75,21 @@ export function DevTestPage() {
           <CardTitle className="text-lg">Kanzlei-Dashboard (Admin-Sicht)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button onClick={handleDevLogin} className="w-full">
-            Als Kanzlei einloggen (Dev-Account)
-          </Button>
-          {loginStatus && <p className="text-sm text-muted-foreground">{loginStatus}</p>}
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Button onClick={handleDevLogin}>
+              Dev-Account (dev@clario.de)
+            </Button>
+            <Button variant="outline" onClick={handleHauptLogin}>
+              Dein Account (l.brodesser)
+            </Button>
+          </div>
+          {loginStatus && (
+            <p className={`text-sm ${loginStatus.includes('fehlgeschlagen') ? 'text-destructive' : 'text-muted-foreground'}`}>
+              {loginStatus}
+            </p>
+          )}
           <p className="text-xs text-muted-foreground">
-            Loggt dich automatisch als "Testkanzlei Mueller" ein. Kein Passwort merken.
+            Dev-Account: dev@clario.de / dev12345678
           </p>
         </CardContent>
       </Card>
