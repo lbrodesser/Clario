@@ -23,6 +23,8 @@ export interface Kanzlei {
   erinnerung_intervalle: { tage: number[] }
   ampel_kritisch_tage: number
   ampel_warnung_tage: number
+  vollmacht_vorlage_url?: string | null
+  datenschutz_vorlage_url?: string | null
   created_at: string
 }
 
@@ -89,6 +91,8 @@ export interface Dokument {
   status: DokumentStatus
   eingabe_wert_text: string | null
   eingabe_wert_zahl: number | null
+  vorlage_pdf_url?: string | null
+  unterschrift_erforderlich?: boolean
   sortierung: number
   created_at: string
 }
@@ -104,6 +108,9 @@ export interface DokumentDatei {
   qualitaet_bestanden: boolean | null
   qualitaet_hinweis: string | null
   qualitaet_trotzdem_hochgeladen: boolean
+  ist_signiert?: boolean
+  signatur_zeitpunkt?: string | null
+  signatur_ip?: string | null
   hochgeladen_am: string
 }
 
@@ -160,6 +167,7 @@ export interface VorlageDokument {
   foto_erlaubt: boolean
   mehrdatei_erlaubt: boolean
   xml_erlaubt: boolean
+  unterschrift_erforderlich?: boolean
   haeufig_vergessen: number
   sortierung: number
 }

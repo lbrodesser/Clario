@@ -8,6 +8,9 @@ interface UploadParams {
   qualitaetBestanden?: boolean
   qualitaetHinweis?: string
   qualitaetTrotzdem?: boolean
+  istSigniert?: boolean
+  signaturZeitpunkt?: string | null
+  signaturIp?: string | null
 }
 
 export function useUpload() {
@@ -21,6 +24,9 @@ export function useUpload() {
       qualitaetBestanden,
       qualitaetHinweis,
       qualitaetTrotzdem,
+      istSigniert,
+      signaturZeitpunkt,
+      signaturIp,
     }: UploadParams) => {
       // Datei in Supabase Storage hochladen
       const dateiPfad = `${portalToken}/${dokumentId}/${Date.now()}_${datei.name}`
@@ -48,6 +54,9 @@ export function useUpload() {
           qualitaet_bestanden: qualitaetBestanden ?? null,
           qualitaet_hinweis: qualitaetHinweis ?? null,
           qualitaet_trotzdem_hochgeladen: qualitaetTrotzdem ?? false,
+          ist_signiert: istSigniert ?? false,
+          signatur_zeitpunkt: signaturZeitpunkt ?? null,
+          signatur_ip: signaturIp ?? null,
         })
 
       if (dateiError) throw dateiError

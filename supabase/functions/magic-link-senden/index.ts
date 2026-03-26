@@ -88,8 +88,12 @@ serve(async (req) => {
         day: '2-digit', month: '2-digit', year: 'numeric',
       })
 
+      const istGwG = checkliste.titel.toLowerCase().includes('gwg')
+
       const betreffMap: Record<string, string> = {
-        einladung: `${kanzlei.name}: Ihre Unterlagen werden benoetigt`,
+        einladung: istGwG
+          ? `${kanzlei.name}: Bitte identifizieren Sie sich fuer Ihr Mandat`
+          : `${kanzlei.name}: Ihre Unterlagen werden benoetigt`,
         '14-tage': `Erinnerung: Noch 14 Tage fuer ${checkliste.titel}`,
         '7-tage': `Erinnerung: Noch 7 Tage fuer ${checkliste.titel}`,
         '3-tage': `Letzte Erinnerung: ${checkliste.titel}`,
@@ -112,6 +116,17 @@ serve(async (req) => {
               <h2>${kanzlei.name}</h2>
               <p>Guten Tag ${mandant.name},</p>
               <p>fuer <strong>${checkliste.titel}</strong> benoetigen wir noch Unterlagen von Ihnen.</p>
+              ${istGwG && typ === 'einladung' ? `
+              <div style="margin: 16px 0; padding: 16px; background-color: #f8fafc; border-radius: 8px;">
+                <p style="margin: 0 0 8px 0; font-weight: bold;">Fuer die Aufnahme Ihres Mandats benoetigen wir folgende Unterlagen:</p>
+                <ul style="margin: 0; padding-left: 20px;">
+                  <li>Personalausweis (Vorder- und Rueckseite)</li>
+                  <li>Ihre Unterschrift auf unserer Vollmacht</li>
+                  <li>Ihre Unterschrift auf unserer Datenschutzerklaerung</li>
+                </ul>
+                <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">Sie koennen alle Dokumente bequem online einreichen — kein Ausdrucken noetig.</p>
+              </div>
+              ` : ''}
               <p><strong>Frist: ${frist}</strong></p>
               <p>Sie haben bereits ${erledigt} von ${pflicht.length} Pflichtdokumenten eingereicht.</p>
               <div style="margin: 30px 0; text-align: center;">

@@ -133,23 +133,64 @@ export function useChecklisteErstellen() {
         .order('sortierung')
 
       if (vorlageDoks && vorlageDoks.length > 0) {
-        const dokumente = vorlageDoks.map((vd: VorlageDokument) => ({
-          checkliste_id: checkliste.id,
-          titel: vd.titel,
-          beschreibung: vd.beschreibung,
-          tipp_basis: vd.tipp_basis,
-          pflicht: vd.pflicht,
-          eingabe_typ: vd.eingabe_typ,
-          einheit: vd.einheit,
-          auswahl_optionen: vd.auswahl_optionen,
-          kombination_typen: vd.kombination_typen,
-          beleg_pflicht_ab_betrag: vd.beleg_pflicht_ab_betrag,
-          foto_erlaubt: vd.foto_erlaubt,
-          mehrdatei_erlaubt: vd.mehrdatei_erlaubt,
-          xml_erlaubt: vd.xml_erlaubt,
-          sortierung: vd.sortierung,
-          vorlage_dokument_id: vd.id,
-        }))
+        // Kanzlei-Daten laden fuer Vorlagen-URLs
+        let vollmachtUrl: string | null = null
+        let datenschutzUrl: string | null = null
+
+        const hatUnterschriftDok = vorlageDoks.some(
+          (vd: VorlageDokument) => vd.unterschrift_erforderlich
+        )
+
+        if (hatUnterschriftDok) {
+          // Kanzlei-ID aus dem Mandanten holen
+          const { data: mandant } = await supabase
+            .from('mandanten')
+            .select('kanzlei_id')
+            .eq('id', mandantId)
+            .single()
+
+          const { data: kanzlei } = await supabase
+            .from('kanzleien')
+            .select('vollmacht_vorlage_url, datenschutz_vorlage_url')
+            .eq('id', mandant?.kanzlei_id)
+            .single()
+
+          if (kanzlei) {
+            vollmachtUrl = kanzlei.vollmacht_vorlage_url ?? null
+            datenschutzUrl = kanzlei.datenschutz_vorlage_url ?? null
+          }
+        }
+
+        const dokumente = vorlageDoks.map((vd: VorlageDokument) => {
+          let vorlagePdfUrl: string | null = null
+          if (vd.unterschrift_erforderlich) {
+            if (vd.titel.toLowerCase().includes('vollmacht')) {
+              vorlagePdfUrl = vollmachtUrl
+            } else if (vd.titel.toLowerCase().includes('datenschutz')) {
+              vorlagePdfUrl = datenschutzUrl
+            }
+          }
+
+          return {
+            checkliste_id: checkliste.id,
+            titel: vd.titel,
+            beschreibung: vd.beschreibung,
+            tipp_basis: vd.tipp_basis,
+            pflicht: vd.pflicht,
+            eingabe_typ: vd.eingabe_typ,
+            einheit: vd.einheit,
+            auswahl_optionen: vd.auswahl_optionen,
+            kombination_typen: vd.kombination_typen,
+            beleg_pflicht_ab_betrag: vd.beleg_pflicht_ab_betrag,
+            foto_erlaubt: vd.foto_erlaubt,
+            mehrdatei_erlaubt: vd.mehrdatei_erlaubt,
+            xml_erlaubt: vd.xml_erlaubt,
+            unterschrift_erforderlich: vd.unterschrift_erforderlich ?? false,
+            vorlage_pdf_url: vorlagePdfUrl,
+            sortierung: vd.sortierung,
+            vorlage_dokument_id: vd.id,
+          }
+        })
 
         const { error: dokError } = await supabase
           .from('dokumente')

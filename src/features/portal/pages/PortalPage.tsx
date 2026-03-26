@@ -84,6 +84,8 @@ export function PortalPage() {
         checkliste={checkliste}
         portalToken={token ?? ''}
         mandantTyp={mandant.typ}
+        mandantName={mandant.name}
+        kanzleiName={kanzlei.name}
       />
 
       {/* Freier Upload */}

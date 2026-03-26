@@ -19,6 +19,7 @@ export function DokumentZeile({ dokument }: DokumentZeileProps) {
   const hatQualitaetsWarnung = dokument.dateien.some(
     (d) => d.qualitaet_trotzdem_hochgeladen
   )
+  const istSigniert = dokument.dateien.some((d) => d.ist_signiert)
 
   return (
     <div className="flex items-center justify-between rounded-lg border p-3">
@@ -33,6 +34,11 @@ export function DokumentZeile({ dokument }: DokumentZeileProps) {
                 <> ({formatDateigroesse(dokument.dateien[0].dateigroesse_kb)})</>
               )}
             </p>
+          )}
+          {istSigniert && (
+            <Badge variant="outline" className="mt-1 border-ampel-gruen text-ampel-gruen text-xs">
+              Digital unterschrieben
+            </Badge>
           )}
           {hatQualitaetsWarnung && (
             <div className="mt-1 flex items-center gap-1 text-xs text-ampel-gelb">

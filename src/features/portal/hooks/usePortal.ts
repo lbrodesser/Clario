@@ -50,6 +50,7 @@ export function usePortalDaten(token: string) {
 
       const doks = dokumente ?? []
       const dokumenteMitDateien: DokumentMitDateien[] = []
+      const k = kanzlei as Kanzlei
 
       for (const dok of doks) {
         const { data: dateien } = await supabase
@@ -58,7 +59,21 @@ export function usePortalDaten(token: string) {
           .eq('dokument_id', dok.id)
           .order('hochgeladen_am', { ascending: false })
 
-        dokumenteMitDateien.push({ ...dok, dateien: dateien ?? [] })
+        // Vorlage-PDF-URL dynamisch aus Kanzlei befuellen wenn im Dokument nicht gesetzt
+        let vorlagePdfUrl = dok.vorlage_pdf_url
+        if (!vorlagePdfUrl && dok.unterschrift_erforderlich) {
+          if (dok.titel.toLowerCase().includes('vollmacht')) {
+            vorlagePdfUrl = k.vollmacht_vorlage_url ?? null
+          } else if (dok.titel.toLowerCase().includes('datenschutz')) {
+            vorlagePdfUrl = k.datenschutz_vorlage_url ?? null
+          }
+        }
+
+        dokumenteMitDateien.push({
+          ...dok,
+          vorlage_pdf_url: vorlagePdfUrl,
+          dateien: dateien ?? [],
+        })
       }
 
       const cl = checkliste as Checkliste
